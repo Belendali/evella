@@ -158,12 +158,11 @@
   $('#play').onclick = () => playing ? pause() : play();
   $('#back10').onclick = () => seek(now() - 10);
   $('#fwd10').onclick = () => seek(now() + 10);
-  $('#heart').onclick = (e) => e.currentTarget.classList.toggle('on');
+  $('#heart').onclick = () => {};
   $('#loop').onclick = (e) => { loopOn = !loopOn; e.currentTarget.style.opacity = loopOn ? '1' : '.55'; };
   $('#loop').style.opacity = '.55';
   $('#note').onclick = (e) => {
     ambientOn = !ambientOn;
-    e.currentTarget.classList.toggle('on', ambientOn);
     if (ambientOn && playing) Ambient.start(); else Ambient.stop();
     note(ambientOn ? 'Stream, birds, a little music' : 'Ambient off');
   };
@@ -190,7 +189,6 @@
   };
   fit(); window.addEventListener('resize', fit);
 
-  $('#note').classList.add('on');
   renderAt(0);
   tick();
   raf = setInterval(tick, 100);
