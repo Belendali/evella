@@ -1,0 +1,139 @@
+/* ═══════════════════════════════════════════════════
+   Echo player — 歌词式轮播
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  --ink: #35251F;
+  --signal: #E96F51;
+  --paper: #FFF8F1;
+  --serif: 'Fraunces', Georgia, serif;
+  --sans: 'Inclusive Sans', -apple-system, system-ui, sans-serif;
+  --fg: var(--paper);
+  --fg-2: rgba(255, 248, 241, .70);
+  --fg-3: rgba(255, 248, 241, .46);
+  --hairline: rgba(255, 248, 241, .22);
+  --frost: rgba(255, 255, 255, .16);
+  --ease: cubic-bezier(.16, 1, .3, 1);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; overscroll-behavior: none; }
+body {
+  font-family: var(--sans); color: var(--fg); background: #14100E;
+  display: grid; place-items: center; overflow: hidden;
+}
+
+#phone {
+  position: relative; width: 390px; height: 844px;
+  overflow: hidden; border-radius: 46px; background: #14100E;
+  box-shadow: 0 40px 90px -30px rgba(0,0,0,.7);
+  transform-origin: center center;
+  display: flex; flex-direction: column;
+  padding: 0 28px 30px;
+}
+@media (max-width: 430px) {
+  body { display: block; overflow: auto; }
+  #phone { width: 100vw; height: 100dvh; border-radius: 0; box-shadow: none; transform: none !important; }
+}
+
+/* ── 背景：封面重度模糊 ─────────────────────── */
+.scene { position: absolute; inset: 0; z-index: 0; overflow: hidden; border-radius: inherit; }
+.scene .shot {
+  position: absolute; inset: -70px -60px;
+  background-size: cover; background-position: center 28%;
+  filter: blur(46px) saturate(.85); transform: scale(1.08);
+}
+.scene .dim { position: absolute; inset: 0; background: rgba(12, 8, 6, .42); }
+.scene .vig {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10,7,5,.52) 0%, rgba(10,7,5,0) 26%,
+                                      rgba(10,7,5,0) 46%, rgba(10,7,5,.82) 100%);
+}
+.grain {
+  position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background-image: url('../assets/grain-surface.png'); background-size: 512px;
+  mix-blend-mode: overlay; opacity: .5;
+}
+
+/* ── 层级 ───────────────────────────────────── */
+.statusbar, .topbar, .lyrics, .bottom { position: relative; z-index: 2; }
+
+.statusbar {
+  height: 54px; flex: 0 0 auto; display: flex; align-items: center;
+  justify-content: space-between; padding: 0 4px 0 12px;
+  font: 600 14px/1 var(--sans); opacity: .95;
+}
+.statusbar .g { display: flex; gap: 5px; }
+.statusbar .g i { width: 15px; height: 10px; border-radius: 3px; background: currentColor; opacity: .7; }
+.statusbar .g i:nth-child(3) { width: 22px; }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+.topbar .name { font: italic 400 22px/28px var(--serif); }
+.circ {
+  width: 46px; height: 46px; border-radius: 999px; border: 1px solid var(--hairline);
+  background: var(--frost); display: grid; place-items: center; cursor: pointer;
+  transition: transform .16s var(--ease);
+}
+.circ:active { transform: scale(.94); }
+.circ svg { width: 20px; height: 20px; stroke: var(--fg); fill: none; stroke-width: 1.8;
+  stroke-linecap: round; stroke-linejoin: round; }
+
+/* ── 歌词 ───────────────────────────────────── */
+.lyrics {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  gap: 18px; padding: 20px 0 8px; min-height: 0;
+}
+.line {
+  font: 400 30px/40px var(--serif);
+  opacity: 0; transform: translateY(16px);
+  transition: opacity .55s var(--ease), transform .55s var(--ease), filter .55s var(--ease);
+  filter: blur(3px);
+}
+.line.prev { opacity: .22; transform: none; filter: none; font-size: 20px; line-height: 28px; }
+.line.now  { opacity: 1;   transform: none; filter: none; }
+.line.next { opacity: .26; transform: none; filter: none; font-size: 20px; line-height: 28px; }
+
+/* ── 底部 ───────────────────────────────────── */
+.bottom { flex: 0 0 auto; }
+.titlerow { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+.titlerow .t { font: 400 17px/24px var(--serif); color: var(--fg-3); flex: 1; min-width: 0;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.scrub { position: relative; height: 3px; border-radius: 2px; background: var(--hairline);
+  margin: 22px 0 8px; cursor: pointer; }
+.scrub .fill { position: absolute; inset: 0 auto 0 0; border-radius: 2px; background: var(--paper); width: 0; }
+.scrub .knob { position: absolute; top: 50%; width: 9px; height: 9px; border-radius: 999px;
+  background: var(--paper); transform: translate(-50%, -50%); left: 0; }
+.times { display: flex; justify-content: space-between; font: 500 11px/16px var(--sans); color: var(--fg-3); }
+
+.transport { display: flex; align-items: center; justify-content: space-between; margin-top: 22px; }
+.ic { width: 28px; height: 28px; cursor: pointer; opacity: .85; }
+.ic svg { width: 100%; height: 100%; stroke: var(--fg); fill: none; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round; }
+.ic.on svg { fill: var(--signal); stroke: var(--signal); }
+.big {
+  width: 76px; height: 76px; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--paper); display: grid; place-items: center;
+  box-shadow: 0 6px 22px -4px rgba(0,0,0,.4);
+  transition: transform .16s var(--ease);
+}
+.big:active { transform: scale(.95); }
+.big svg { width: 26px; height: 26px; fill: var(--ink); }
+
+.share {
+  margin: 20px auto 0; display: flex; align-items: center; gap: 9px;
+  padding: 11px 22px; border-radius: 999px; border: 1px solid var(--hairline);
+  background: var(--frost); font: 500 14px/18px var(--sans); color: var(--fg);
+  cursor: pointer; width: fit-content;
+}
+.share svg { width: 15px; height: 15px; stroke: var(--fg); fill: none; stroke-width: 1.6;
+  stroke-linecap: round; stroke-linejoin: round; }
+.homebar { width: 134px; height: 5px; border-radius: 3px; background: var(--fg);
+  opacity: .3; margin: 16px auto 0; }
+
+.hint {
+  position: absolute; left: 0; right: 0; bottom: 96px; z-index: 3; text-align: center;
+  font: 400 13px/18px var(--sans); color: var(--fg-3);
+  opacity: 0; transition: opacity .4s; pointer-events: none;
+}
+.hint.on { opacity: 1; }
