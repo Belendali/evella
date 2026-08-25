@@ -133,12 +133,14 @@
       });
     }
     if (!raf) raf = setInterval(tick, 100);
+    if (ambientOn) Ambient.start();
   }
   function pause() {
     if (!playing) return;
     playing = false; elapsed = now();
     $('#play').innerHTML = ICON.play;
     if (hasAudio) audio.pause();
+    Ambient.stop();
   }
   function seek(t) {
     t = Math.max(0, Math.min(total, t));
@@ -152,13 +154,19 @@
   }
 
   let loopOn = false;
+  let ambientOn = true;   // 默认开着 —— 它小到不开反而觉得干
   $('#play').onclick = () => playing ? pause() : play();
   $('#back10').onclick = () => seek(now() - 10);
   $('#fwd10').onclick = () => seek(now() + 10);
   $('#heart').onclick = (e) => e.currentTarget.classList.toggle('on');
   $('#loop').onclick = (e) => { loopOn = !loopOn; e.currentTarget.style.opacity = loopOn ? '1' : '.55'; };
   $('#loop').style.opacity = '.55';
-  $('#note').onclick = () => note('Ambient sound — coming with the audio');
+  $('#note').onclick = (e) => {
+    ambientOn = !ambientOn;
+    e.currentTarget.classList.toggle('on', ambientOn);
+    if (ambientOn && playing) Ambient.start(); else Ambient.stop();
+    note(ambientOn ? 'Stream, birds, a little music' : 'Ambient off');
+  };
   $('#mix').onclick = () => note('Voice & ambient settings');
   $('#back').onclick = () => history.length > 1 ? history.back() : location.href = '../../';
   $('#scrub').onclick = (e) => {
@@ -182,6 +190,7 @@
   };
   fit(); window.addEventListener('resize', fit);
 
+  $('#note').classList.add('on');
   renderAt(0);
   tick();
   raf = setInterval(tick, 100);
