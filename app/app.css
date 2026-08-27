@@ -360,3 +360,34 @@ body {
 .mark-img { width: 96px; height: 96px; margin: 0 auto; display: block; }
 .fade-up { opacity: 0; transform: translateY(10px); animation: fadeUp .7s var(--ease-enter) forwards; }
 @keyframes fadeUp { to { opacity: 1; transform: none; } }
+
+/* ── onboarding 输入区 ─────────────────────────── */
+.autofill {
+  display: inline-flex; align-items: center; gap: 7px; align-self: flex-start;
+  padding: 8px 14px 8px 11px; border-radius: 999px;
+  background: var(--grad-paper); border: 1px solid var(--hairline);
+  box-shadow: var(--lift-soft); color: var(--ink);
+  font: 500 14px/18px var(--sans); cursor: pointer;
+}
+.note.small { font-size: 13px; line-height: 18px; margin: 0; }
+
+/* ── 自拍 ──────────────────────────────────────── */
+.cam {
+  width: 268px; height: 320px; margin: 26px auto 0; border-radius: 140px / 160px;
+  overflow: hidden; background: rgba(53,37,31,.12); position: relative;
+}
+.cam video, .cam img { width: 100%; height: 100%; object-fit: cover; display: block;
+  transform: scaleX(-1); }
+.cam.still img { transform: none; }
+.shutter {
+  width: 72px; height: 72px; border-radius: 999px; border: 0; cursor: pointer;
+  background: var(--paper); box-shadow: 0 0 0 4px rgba(255,248,241,.55), var(--lift-soft);
+  transition: transform .16s var(--ease-enter);
+}
+.shutter:active { transform: scale(.93); }
+.camrow { display: flex; align-items: center; justify-content: center; gap: 34px; margin-top: 26px; }
+.camrow .side { width: 44px; height: 44px; border-radius: 999px; display: grid; place-items: center;
+  background: var(--grad-paper); border: 1px solid var(--hairline); box-shadow: var(--lift-soft);
+  cursor: pointer; }
+.camrow .side svg { width: 20px; height: 20px; stroke: var(--ink); fill: none; stroke-width: 1.7;
+  stroke-linecap: round; stroke-linejoin: round; }

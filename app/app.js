@@ -29,6 +29,7 @@ const ICON = {
   lib:  '<svg viewBox="0 0 24 24"><path d="M4 15v-3a8 8 0 0 1 16 0v3M4 15a2.5 2.5 0 0 1 5 0v2a2.5 2.5 0 0 1-5 0zm11 0a2.5 2.5 0 0 1 5 0v2a2.5 2.5 0 0 1-5 0z"/></svg>',
   me:   '<svg viewBox="0 0 24 24"><circle cx="12" cy="8.5" r="3.8"/><path d="M5 20c0-3.6 3.1-5.6 7-5.6s7 2 7 5.6"/></svg>',
   heart:'<svg viewBox="0 0 24 24"><path d="M12 20s-8-5-8-10.2A4.5 4.5 0 0 1 12 7a4.5 4.5 0 0 1 8 2.8C20 15 12 20 12 20z"/></svg>',
+  pin:  '<svg viewBox="0 0 24 24" style="width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.5"><path d="M12 21s6-5.3 6-9.6A6 6 0 0 0 6 11.4C6 15.7 12 21 12 21Z"/><circle cx="12" cy="11.2" r="2" fill="currentColor" stroke="none"/></svg>',
   clock:'<svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 1 0 2.6-5.9M4 4v4.2h4.2M12 8.5V12l2.6 2"/></svg>'
 };
 const BIRD_SVG = '<svg viewBox="0 0 96 80"><path fill-rule="evenodd" d="M2 40 15 34.5C17.5 21.5 29 12 43 12C57.5 12 69 22 71 35.5L88 24.5 92.5 31 76 42C75.5 57 64 68 48 68C28 68 14.5 58 12 46.5ZM28 32a4 4 0 1 0 8 0a4 4 0 1 0-8 0Z"/></svg>';
@@ -131,13 +132,21 @@ function setTab(name) {
 /* ═══════════════════════════════════════════════
    ONBOARDING —— 数据驱动
    ═══════════════════════════════════════════════ */
+/* type: text  短事实 —— 键盘 + 箭头
+   type: open  长开放 —— 键盘 + 麦克风（打字仍是默认，语音是备选）
+   打字优先是刻意的：麦克风摆在那儿会让一部分人直接跳过这一题。 */
 const STEPS = [
-  { k: 'name',     type: 'text',  q: 'What should Wren\ncall you?', note: 'Wren says it out loud before it goes.', ph: 'Maya' },
-  { k: 'desire',   type: 'voice', q: '{name}, what are you\nhoping changes\nright now?', ph: 'Confidence, calm, a decision…' },
+  { k: 'city',     type: 'text',  q: 'Where do you live?', ph: 'Seattle', autofill: true },
+  { k: 'name',     type: 'text',  q: 'What should Wren\ncall you?', ph: 'Maya' },
+  { k: 'kids',     type: 'choice',q: 'Do you have kids?', note: 'It changes what your mornings look like.', opts: ['Yes', 'No'] },
+  { k: 'desire',   type: 'open',  q: '{name}, what are you\nhoping changes\nright now?', ph: 'Confidence, calm, a decision…' },
   { k: '_mirror1', type: 'mirror',body: 'I can hear how much this one matters, {name}.\n\nYou said it twice without noticing.' },
   { k: '_people',  type: 'people',q: 'Who are the people\nWren should know\nmatter most to you?', note: 'Wren carries their names too.' },
   { k: 'work',     type: 'text',  q: 'What do you do\nfor work?', ph: 'Product designer' },
-  { k: '_mirror2', type: 'mirror',body: 'One more, {name}. The big one.\n\n<i>Don’t be careful with it.</i>' }
+  { k: 'workFeel', type: 'choice',q: 'How do you feel\nabout your work?', stack: true,
+    opts: ['Love it', 'It’s fine for now', 'I’m ready for something new', 'I’m building something on the side'] },
+  { k: 'about',    type: 'open',  q: 'Since we’ve never met,\n{name} — what should\nWren know about you?', ph: 'I am a…' },
+  { k: '_mirror2', type: 'mirror',body: 'I’ve got all of that now, {name}.\n\nI think you’re the one who can get what you want.' }
 ];
 const fill = (s) => (s || '').replace(/\{name\}/g, S.name || 'you');
 
@@ -157,19 +166,22 @@ function stepScreen({ i = 0 }) {
   wrap.append(el('h1.q', { html: fill(step.q).replace(/\n/g, '<br>') }));
   if (step.note) wrap.append(el('p.note', {}, fill(step.note)));
 
-  if (step.type === 'text' || step.type === 'voice') {
+  if (step.type === 'text' || step.type === 'open') {
+    const open = step.type === 'open';
     const input = el('input', { type: 'text', placeholder: step.ph, value: S[step.k] || '' });
     const commit = () => { S[step.k] = input.value.trim(); save(); if (S[step.k]) next(); };
-    const speakable = step.type === 'voice';
-    const btn = el('button.round', { html: speakable ? ICON.mic : ICON.up, onclick: () => {
-      if (speakable && Speech.canListen()) micInto(input, commit);
+    const btn = el('button.round', { html: open ? ICON.mic : ICON.up, onclick: () => {
+      if (open && !input.value.trim() && Speech.canListen()) micInto(input, commit);
       else commit();
     }});
     input.addEventListener('keydown', e => { if (e.key === 'Enter') commit(); });
-    if (speakable) wrap.append(el('p.note', { style: { marginTop: '18px' } },
-      'Wren hears you better than it reads you.'));
-    wrap.append(el('div.foot', {}, el('div.pill', {}, input, btn),
-      el('button.btn.ghost', { onclick: commit }, 'Next')));
+
+    const foot = el('div.foot', {});
+    if (step.autofill) foot.append(el('div.autofill', { onclick: () => { input.value = S.city || 'Seattle'; input.focus(); } },
+      el('span', { html: ICON.pin }), 'AutoFill'));
+    if (open) foot.append(el('p.note.small', {}, 'Wren can hear and understand you'));
+    foot.append(el('div.pill', {}, input, btn));
+    wrap.append(foot);
     setTimeout(() => input.focus(), 380);
     return wrap;
   }
@@ -333,7 +345,7 @@ function transcribedScreen() {
         if (!S.onboarded) { S.dream = draft.text; draft.mode = 'dream'; }
         S.facts = [...new Set([...(S.facts || []), draft.text])].slice(-12);
         save();
-        go('generating');
+        go(S.onboarded ? 'generating' : 'face');
       }}, 'That’s it'))
   );
 }
@@ -410,7 +422,7 @@ function homeScreen() {
   return el('div', { style: { paddingTop: '0' } },
     el('div.brand-top', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between',
       marginTop: '62px' } },
-      el('div', { style: { font: '400 34px/42px var(--serif)', letterSpacing: '-.02em' } }, 'Wren'),
+      el('div', { style: { font: '400 34px/42px var(--serif)', letterSpacing: '-.02em' } }, 'Echo'),
       el('div', { style: { display: 'flex', gap: '10px' } },
         el('div.ic', { html: ICON.heart, onclick: () => go('library') }),
         el('div.ic', { html: ICON.clock, onclick: () => go('library') }))),
@@ -632,7 +644,7 @@ function welcomeScreen() {
     el('div.grow'),
     el('img.mark-img.fade-up', { src: 'assets/logo-1024.png', alt: 'Wren',
       style: { animationDelay: '.05s' } }),
-    el('div.wordmark.fade-up', { style: { marginTop: '22px', animationDelay: '.35s' } }, 'Wren'),
+    el('div.wordmark.fade-up', { style: { marginTop: '22px', animationDelay: '.35s' } }, 'Echo'),
     el('p.fade-up', { style: { marginTop: '14px', font: '400 15px/24px var(--sans)',
         color: 'var(--fg-2)', maxWidth: '300px', animationDelay: '.6s' } },
       'Small bird. The whole sky hears it.', el('br'),
@@ -646,9 +658,65 @@ function welcomeScreen() {
   );
 }
 
+
+/* ═══════════════════════════════════════════════
+   自拍 —— 后面要拿这张脸生成「她在那个生活里」的图
+   ═══════════════════════════════════════════════ */
+function faceScreen() {
+  const cam = el('div.cam');
+  const video = el('video', { autoplay: '', playsinline: '', muted: '' });
+  cam.append(video);
+  let stream = null;
+
+  navigator.mediaDevices?.getUserMedia({ video: { facingMode: 'user', width: 720, height: 900 } })
+    .then(st => { stream = st; video.srcObject = st; })
+    .catch(() => { cam.append(el('p.note.center', { style: { position: 'absolute', inset: 'auto 20px 40%' } },
+      'Camera not available — you can skip.')); });
+
+  const shoot = () => {
+    const c = document.createElement('canvas');
+    const w = video.videoWidth || 720, h = video.videoHeight || 900;
+    c.width = w; c.height = h;
+    const g = c.getContext('2d');
+    g.translate(w, 0); g.scale(-1, 1);          // 镜像回来，不然自拍是反的
+    g.drawImage(video, 0, 0, w, h);
+    S.face = c.toDataURL('image/jpeg', 0.82); save();
+    stream?.getTracks().forEach(t => t.stop());
+    go('faceconfirm');
+  };
+
+  return el('div', {},
+    topbar(1, () => { stream?.getTracks().forEach(t => t.stop()); go('transcribed'); }),
+    el('h1.q', { html: 'Last thing — let’s see you.' }),
+    el('p.note', {}, 'Clear face, no filter. Everything Wren makes starts from this.'),
+    cam,
+    el('div.camrow', {},
+      el('div.side', { html: ICON.pin, style: { opacity: '0', pointerEvents: 'none' } }),
+      el('button.shutter', { onclick: shoot }),
+      el('div.side', { html: ICON.f10, onclick: () => toast('Flip camera') })),
+    el('div.foot', {}, el('button.btn.ghost', { onclick: () => {
+      stream?.getTracks().forEach(t => t.stop()); go('generating');
+    }}, 'Not now'))
+  );
+}
+
+function faceConfirmScreen() {
+  const shot = el('div.cam.still', {}, S.face ? el('img', { src: S.face }) : null);
+  return el('div', {},
+    topbar(1, () => go('face')),
+    el('h1.q', { html: 'Ready to see the life<br>you just described?' }),
+    shot,
+    el('p.note.center', { style: { marginTop: '20px' } }, 'You can change it any time.'),
+    el('div.foot', {},
+      el('button.btn', { onclick: () => go('generating') }, 'I’m ready'),
+      el('button.btn.ghost', { onclick: () => go('face') }, 'Retake'))
+  );
+}
+
 const SCREENS = {
   welcome: welcomeScreen, step: stepScreen, sayit: sayitScreen, listening: listeningScreen,
   transcribed: transcribedScreen, caught: caughtScreen, promise: promiseScreen,
+  face: faceScreen, faceconfirm: faceConfirmScreen,
   home: homeScreen, regular: regularScreen, generating: generatingScreen, picker: pickerScreen,
   storyintro: storyIntroScreen, player: playerScreen, library: libraryScreen, me: meScreen
 };
