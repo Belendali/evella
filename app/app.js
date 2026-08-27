@@ -400,50 +400,54 @@ function promiseScreen() {
 /* ═══════════════════════════════════════════════
    HOME
    ═══════════════════════════════════════════════ */
+/* Figma 4:8。人像出血压顶，问句和输入坐在一层薄白上，
+   下面是 For you 横轨。品牌那只鸟从首页退到了后面。 */
+const FOR_YOU = [
+  { min: '3 MIN',  title: 'Perfect dating with BF',        shot: 'assets/home/card-1.jpg' },
+  { min: '3 MIN',  title: 'A wonderful day',               shot: 'assets/home/card-2.jpg' },
+  { min: '90 SEC', title: 'Before you open the message',   shot: null }
+];
+
 function homeScreen() {
   const input = el('input', { type: 'text', placeholder: 'Say it out loud…' });
-  const send = () => { draft.text = input.value.trim(); draft.mode = 'thing';
-    if (!draft.text) return go('listening'); go('transcribed'); };
+  const send = () => {
+    draft.text = input.value.trim(); draft.mode = 'thing';
+    go(draft.text ? 'transcribed' : 'listening');
+  };
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') send(); });
 
-  const sugg = (S.facts || []).slice(-3).reverse();
-  const chips = el('div.chips', { style: { marginTop: '11px' } });
-  (sugg.length ? sugg : ['The 3pm review', 'The house, eventually']).forEach(s =>
-    chips.append(el('button.chip', { style: { fontFamily: 'var(--serif)', fontWeight: '400' },
-      onclick: () => { input.value = s; input.focus(); } }, '+  ' + s)));
+  /* 用户自己说过的愿望排在设计稿那两条示例前面 */
+  const picks = [S.desire, 'Earn $300K/year', 'Get my dream job at Google']
+    .filter(Boolean).slice(0, 2);
+  const sugg = el('div.h2-sugg');
+  picks.forEach(t => sugg.append(el('button', {
+    onclick: () => { input.value = t; input.focus(); } }, t)));
 
-  const rail = el('div.rail', { style: { marginTop: '18px' } });
-  const past = (S.sessions || []).slice(-6).reverse();
-  (past.length ? past : [{ carry: 'Walking in already steady', mins: '3 min' },
-                         { carry: 'I can take the long way', mins: '2 min' }])
-    .forEach(x => rail.append(el('div.sess', { onclick: () => { draft.text = x.intent || x.carry;
-        draft.mode = x.mode || 'thing'; go('generating'); } },
-      el('div.art', { style: { backgroundImage: `url('${coverFor(x.carry)}')`,
-                               backgroundSize: 'cover', backgroundPosition: 'center 30%' } }),
-      el('div.body', {}, el('small', {}, x.mins || '3 min'), el('p', {}, x.carry)))));
+  const rail = el('div.h2-rail');
+  FOR_YOU.forEach(c => {
+    const art = c.shot
+      ? el('div.art', {}, el('img.shot', { src: c.shot, alt: '' }), el('span.min', {}, c.min))
+      : el('div.art');
+    const body = c.shot
+      ? el('div.body', {}, el('p', {}, c.title))
+      : el('div.body', {}, el('small', {}, c.min), el('p', {}, c.title));
+    rail.append(el('div.h2-card' + (c.shot ? '' : '.plain'), {
+      onclick: () => { draft.text = c.title; draft.mode = 'dream'; go('generating'); }
+    }, art, body));
+  });
 
-  return el('div', { style: { paddingTop: '0' } },
-    el('div.brand-top', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      marginTop: '62px' } },
-      el('div', { style: { font: '400 34px/42px var(--serif)', letterSpacing: '-.02em' } }, 'Echo'),
-      el('div', { style: { display: 'flex', gap: '10px' } },
-        el('div.ic', { html: ICON.heart, onclick: () => go('library') }),
-        el('div.ic', { html: ICON.clock, onclick: () => go('library') }))),
-    hero('listening'),
-    el('h1.q', { style: { marginTop: '2px', textAlign: 'center' },
-      html: `${S.name || 'You'}, what should<br>Wren <em>carry up</em>?` }),
-    el('div.pill', { style: { marginTop: '20px' } }, input,
-      el('button.round', { html: ICON.mic, onclick: () => { draft.text = ''; go('listening'); } })),
-    el('p.eyebrow', { style: { marginTop: '20px' } }, 'Still on your mind'),
-    chips,
-    el('button', { style: { marginTop: '16px', background: 'none', border: '0', padding: '0',
-        color: 'var(--signal)', font: '500 15px/20px var(--sans)', textAlign: 'left', cursor: 'pointer' },
-      onclick: () => go('regular') }, 'Nothing today — just a regular day  →'),
-    el('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-      marginTop: '26px' } },
-      el('div', { style: { font: '400 26px/34px var(--serif)' } }, 'For you'),
-      el('button.chip', { onclick: () => go('me') }, 'What Wren knows')),
-    rail,
-    el('div', { style: { height: '96px' } })
+  return el('div.bleed', {},
+    el('div.hero-photo', {}, el('img', { src: 'assets/home/hero.jpg', alt: '' })),
+    el('div.h2-head'),
+    el('div.h2-hero', {},
+      el('p.h2-q', {}, `${S.name || 'Maya'}, what do you want to manifest today?`),
+      el('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px' } },
+        el('div.h2-pill', {}, input,
+          el('button.h2-mic', { html: ICON.mic,
+            onclick: () => { draft.text = ''; draft.mode = 'thing'; go('listening'); } })),
+        sugg)),
+    el('div.h2-foryou', {}, 'For you'),
+    rail
   );
 }
 
