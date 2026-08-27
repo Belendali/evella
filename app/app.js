@@ -52,8 +52,10 @@ window.wrenReset = reset;
 /* ── 路由 ───────────────────────────────────── */
 const stage = () => $('#stage');
 let current = null;
+let stopPlayback = null;   /* 播放页离场时由路由调用 */
 function go(name, data) {
   const build = SCREENS[name];
+  if (stopPlayback) { stopPlayback(); stopPlayback = null; }
   if (!build) return console.warn('no screen', name);
   const old = current;
   const node = build(data || {});
@@ -527,50 +529,101 @@ function storyIntroScreen({ i = 0 }) {
   );
 }
 
+/* 第一段是真录音 —— 合成语音只够验证流程，不够让人听完。
+   文案按句轮播，落点由音频时间驱动。 */
+const FIRST_TRACK = {
+  title: 'He’s always thinking of me',
+  audio: 'echo/audio/1.mp3',
+  cover: 'assets/covers/cover-2.jpg',
+  lines: [
+    ['No matter what he is doing or who he is with,', 4.2],
+    ['he is always thinking about me.', 4.0],
+    ['Everything reminds him of me.', 4.0],
+    ['I am completely irreplaceable.', 4.0],
+    ['I am truly his dream girl.', 4.0],
+    ['He simply can’t get me off his mind.', 4.4],
+    ['He is constantly reaching out,', 3.4],
+    ['texting me, and calling me.', 4.2]
+  ]
+};
+
 function playerScreen({ i = 0 }) {
-  const v = made.alt[i];
-  const scriptObj = i === 0 ? made.base : Wren.script(S, draft.text, draft.mode);
-  const line = el('div.line', {}, '…');
+  const T = FIRST_TRACK;
+  const marks = []; let acc = 0;
+  T.lines.forEach(([, sec]) => { marks.push(acc); acc += sec; });
+  const fallback = acc;
+
+  const box = el('div.lyrics');
   const bar = el('i');
-  const tL = el('span', {}, '0:00'), tR = el('span', {}, '-' + fmt(scriptObj.seconds));
-  const playBtn = el('button.big', { html: ICON.pause, onclick: togglePlay });
+  const tL = el('span', {}, '0:00'), tR = el('span', {}, '-0:00');
+  const playBtn = el('button.big', { html: ICON.pause, onclick: () => toggle() });
 
-  Speech.play(scriptObj.segments, {
-    onLine: (txt) => { line.textContent = txt; },
-    onProgress: (r, e, total) => {
-      bar.style.width = (r * 100) + '%';
-      tL.textContent = fmt(e); tR.textContent = '-' + fmt(Math.max(0, total - e));
-    },
-    onDone: () => {
-      playBtn.innerHTML = ICON.play;
-      S.sessions.push({ intent: draft.text, mode: draft.mode, carry: scriptObj.carry,
-                        mins: Math.round(scriptObj.seconds / 60) + ' min', at: Date.now() });
-      save();
-      if (!S.onboarded) { setTimeout(() => go('promise'), 900); return; }
-      toast('Wren’s up there with the rest of it.');
-    }
+  const audio = new Audio();
+  audio.preload = 'auto'; audio.src = T.audio;
+  let hasAudio = false, total = fallback, timer = null, cur = -1, done = false;
+  audio.addEventListener('loadedmetadata', () => {
+    if (audio.duration && isFinite(audio.duration)) { hasAudio = true; total = audio.duration; }
   });
+  const scale = () => hasAudio && total ? total / fallback : 1;
+  const fmt = (s) => { s = Math.max(0, Math.round(s)); return `${Math.floor(s/60)}:${String(s%60).padStart(2,'0')}`; };
 
-  function togglePlay() {
-    const s = Speech.session;
-    if (!s) { go('player', { i }); return; }
-    if (s.paused) { s.resume(); playBtn.innerHTML = ICON.pause; }
-    else { s.pause(); playBtn.innerHTML = ICON.play; }
+  function renderAt(k) {
+    if (k === cur) return; cur = k;
+    box.innerHTML = '';
+    const add = (idx, cls) => {
+      if (idx < 0 || idx >= T.lines.length) return;
+      const d = el('div.lyric.' + cls, {}, T.lines[idx][0]);
+      box.append(d); requestAnimationFrame(() => d.classList.add(cls));
+    };
+    add(k - 1, 'prev'); add(k, 'now'); add(k + 1, 'next');
   }
-  function fmt(s) { s = Math.max(0, Math.round(s)); return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`; }
+  const lineAt = (t) => { let k = 0; for (let j = 0; j < marks.length; j++) if (t >= marks[j] * scale()) k = j; return k; };
 
-  return el('div', {},
-    sceneBg(coverFor(v.title)),
-    topbar(null, () => { Speech.stop(); go('home'); }),
-    el('div.center', { style: { marginTop: '70px', font: 'italic 400 22px/28px var(--serif)' } }, 'Wren'),
-    el('div.grow'),
-    line,
-    el('div.grow'),
+  function tick() {
+    const t = Math.min(audio.currentTime || 0, total);
+    bar.style.width = (total ? t / total * 100 : 0) + '%';
+    tL.textContent = fmt(t); tR.textContent = '-' + fmt(total - t);
+    renderAt(lineAt(t));
+    if (!done && total && t >= total - 0.15) {
+      done = true; playBtn.innerHTML = ICON.play; Ambient.stop();
+      clearInterval(timer); timer = null;
+      S.sessions.push({ intent: draft.text || T.title, mode: draft.mode, carry: T.lines[3][0],
+                        mins: Math.round(total / 60) + ' min', at: Date.now() });
+      save();
+      if (!S.onboarded) setTimeout(() => go('promise'), 900);
+      else toast('Wren’s up there with the rest of it.');
+    }
+  }
+  function start() {
+    audio.play().then(() => { playBtn.innerHTML = ICON.pause; Ambient.start(); })
+                .catch(() => { playBtn.innerHTML = ICON.play; toast('Tap to play'); });
+    if (!timer) timer = setInterval(tick, 100);
+  }
+  function toggle() {
+    if (audio.paused) start();
+    else { audio.pause(); playBtn.innerHTML = ICON.play; Ambient.stop(); }
+  }
+  const leave = () => { audio.pause(); clearInterval(timer); timer = null; Ambient.stop(); };
+  stopPlayback = leave;
+
+  renderAt(0); tick();
+  timer = setInterval(tick, 100);
+  audio.addEventListener('canplay', () => { if (audio.paused && !done) start(); }, { once: true });
+  setTimeout(() => { if (audio.paused && !done) start(); }, 500);
+
+  return el('div.onscene', {},
+    sceneBg(T.cover),
+    topbar(null, () => { leave(); go(S.onboarded ? 'home' : 'promise'); }),
+    el('div.center', { style: { marginTop: '70px', font: 'italic 400 22px/28px var(--serif)' } }, 'Echo'),
+    box,
     el('div.stack.gap-s', { style: { paddingBottom: '10px' } },
+      el('div', { style: { font: '400 17px/24px var(--serif)', color: 'var(--fg-3)', marginBottom: '14px' } }, T.title),
       el('div.scrub', {}, bar),
       el('div.times', {}, tL, tR),
       el('div.transport', { style: { marginTop: '22px' } },
-        el('div.ic', { html: ICON.b10 }), playBtn, el('div.ic', { html: ICON.f10 })))
+        el('div.ic', { html: ICON.b10, onclick: () => { audio.currentTime = Math.max(0, audio.currentTime - 10); cur = -1; } }),
+        playBtn,
+        el('div.ic', { html: ICON.f10, onclick: () => { audio.currentTime = Math.min(total, audio.currentTime + 10); cur = -1; } })))
   );
 }
 

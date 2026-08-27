@@ -391,3 +391,23 @@ body {
   cursor: pointer; }
 .camrow .side svg { width: 20px; height: 20px; stroke: var(--ink); fill: none; stroke-width: 1.7;
   stroke-linecap: round; stroke-linejoin: round; }
+
+/* ── 播放器：歌词式轮播（与 /echo 同一套） ────── */
+.lyrics { flex: 1; display: flex; flex-direction: column; justify-content: center;
+  gap: 18px; padding: 20px 0 8px; min-height: 0; }
+.lyric {
+  font: 400 30px/40px var(--serif); color: var(--paper);
+  opacity: 0; transform: translateY(16px); filter: blur(3px);
+  transition: opacity .55s var(--ease-enter), transform .55s var(--ease-enter), filter .55s var(--ease-enter);
+}
+.lyric.prev, .lyric.next { opacity: .24; transform: none; filter: none;
+  font-size: 20px; line-height: 28px; }
+.lyric.now { opacity: 1; transform: none; filter: none; }
+
+/* 播放页坐在压暗的封面上，整屏的墨色文字都要翻成纸色 */
+.onscene { display: flex; flex-direction: column; height: 100%; color: var(--paper); }
+.onscene .times, .onscene .stack > div:first-child { color: rgba(255, 248, 241, .58); }
+.onscene .ic svg { stroke: var(--paper); }
+.onscene .scrub { background: rgba(255, 248, 241, .22); }
+.onscene .scrub i { background: var(--paper); }
+.onscene .back svg { stroke: var(--paper); }
