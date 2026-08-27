@@ -638,7 +638,7 @@ function meScreen() {
 
 /* ═══════════════════════════════════════════════ */
 function welcomeScreen() {
-  const btn = el('button.btn.fade-up', { style: { animationDelay: '1.1s' },
+  const btn = el('button.btn.fade-up', { style: { animationDelay: '.85s' },
     onclick: () => go(S.onboarded ? 'home' : 'step', { i: 0 }) }, S.onboarded ? 'Take me in' : 'Begin');
   return el('div', { style: { alignItems: 'center', textAlign: 'center' } },
     el('div.grow'),
@@ -649,10 +649,6 @@ function welcomeScreen() {
         color: 'var(--fg-2)', maxWidth: '300px', animationDelay: '.6s' } },
       'Small bird. The whole sky hears it.', el('br'),
       'Say it out loud — Wren carries the rest.'),
-    el('button.chip.fade-up', { style: { marginTop: '24px', animationDelay: '.85s' }, onclick: () => {
-      Speech.chirp({ near: true });
-      setTimeout(() => Speech.play([{ text: 'Maya. It is Tuesday morning, and the room is quieter than you expected.', pause: .4 }], {}), 400);
-    }}, '▶   Hear it first · 8 sec'),
     el('div.grow'),
     el('div.foot', { style: { width: '100%', marginTop: '0' } }, btn)
   );
