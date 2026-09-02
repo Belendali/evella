@@ -5,7 +5,7 @@
      2  script()   把用户的原话拼成五段式的三分钟
    ═══════════════════════════════════════════════════ */
 
-const Wren = (() => {
+const Evella = (() => {
 
   /* ── 1 · 够不够具体 ─────────────────────────
      只要有以下任意一项就放行。
@@ -115,10 +115,10 @@ const Wren = (() => {
     } else if (mode === 'dream') {
       s.push({ text: `You told me what it looks like.`, pause: 1.4 });
       s.push({ text: `${phrase}.`, pause: 2.2 });
-      s.push({ text: `Wren has all of it. It went up with the whole thing, not the careful version.`, pause: 2.0 });
+      s.push({ text: `Evella has all of it. It went up with the whole thing, not the careful version.`, pause: 2.0 });
     } else {
       s.push({ text: `You said: ${phrase}.`, pause: 2.0 });
-      s.push({ text: `Wren has that. It's already gone up with it.`, pause: 1.8 });
+      s.push({ text: `Evella has that. It's already gone up with it.`, pause: 1.8 });
     }
     s.push({ text: `Let the next breath out slowly. All of it.`, pause: 3.4, bird: true });
 
@@ -159,7 +159,7 @@ const Wren = (() => {
     s.push({ text: `One line to take with you.`, pause: 2.0 });
     s.push({ text: carry, pause: 3.6 });
     s.push({ text: carry, pause: 4.0 });
-    s.push({ text: `That's it. Wren's already up there with the rest.`, pause: 1.6 });
+    s.push({ text: `That's it. Evella's already up there with the rest.`, pause: 1.6 });
 
     return { segments: s, carry, seconds: Speech.estimate(s) };
   }

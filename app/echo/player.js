@@ -29,7 +29,7 @@
     share: '<svg viewBox="0 0 24 24"><path d="M12 15V3m0 0-4 4m4-4 4 4M4 14v5.2A.8.8 0 0 0 4.8 20h14.4a.8.8 0 0 0 .8-.8V14"/></svg>'
   };
 
-  document.title = 'Wren · ' + T.title;
+  document.title = 'Evella · ' + T.title;
 
   $('#phone').innerHTML = `
     <div class="scene">
@@ -42,7 +42,7 @@
 
     <div class="topbar">
       <div class="circ" id="back">${ICON.back}</div>
-      <div class="name">Echo</div>
+      <div class="name">Evella</div>
       <div class="circ" id="mix">${ICON.mix}</div>
     </div>
 
@@ -175,7 +175,7 @@
   $('#share').onclick = async () => {
     const url = location.href;
     try {
-      if (navigator.share) await navigator.share({ title: 'Wren · ' + T.title, url });
+      if (navigator.share) await navigator.share({ title: 'Evella · ' + T.title, url });
       else { await navigator.clipboard.writeText(url); note('Link copied'); }
     } catch (_) {}
   };

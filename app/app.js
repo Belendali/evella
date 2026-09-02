@@ -139,15 +139,15 @@ function setTab(name) {
    打字优先是刻意的：麦克风摆在那儿会让一部分人直接跳过这一题。 */
 const STEPS = [
   { k: 'city',     type: 'text',  q: 'Where do you live?', ph: 'Seattle', autofill: true },
-  { k: 'name',     type: 'text',  q: 'What should Wren\ncall you?', ph: 'Maya' },
+  { k: 'name',     type: 'text',  q: 'What should Evella\ncall you?', ph: 'Maya' },
   { k: 'kids',     type: 'choice',q: 'Do you have kids?', note: 'It changes what your mornings look like.', opts: ['Yes', 'No'] },
   { k: 'desire',   type: 'open',  q: '{name}, what are you\nhoping changes\nright now?', ph: 'Confidence, calm, a decision…' },
   { k: '_mirror1', type: 'mirror',body: 'I can hear how much this one matters, {name}.\n\nYou said it twice without noticing.' },
-  { k: '_people',  type: 'people',q: 'Who are the people\nWren should know\nmatter most to you?', note: 'Wren carries their names too.' },
+  { k: '_people',  type: 'people',q: 'Who are the people\nEvella should know\nmatter most to you?', note: 'Evella carries their names too.' },
   { k: 'work',     type: 'text',  q: 'What do you do\nfor work?', ph: 'Product designer' },
   { k: 'workFeel', type: 'choice',q: 'How do you feel\nabout your work?', stack: true,
     opts: ['Love it', 'It’s fine for now', 'I’m ready for something new', 'I’m building something on the side'] },
-  { k: 'about',    type: 'open',  q: 'Since we’ve never met,\n{name} — what should\nWren know about you?', ph: 'I am a…' },
+  { k: 'about',    type: 'open',  q: 'Since we’ve never met,\n{name} — what should\nEvella know about you?', ph: 'I am a…' },
   { k: '_mirror2', type: 'mirror',body: 'I’ve got all of that now, {name}.\n\nI think you’re the one who can get what you want.' }
 ];
 const fill = (s) => (s || '').replace(/\{name\}/g, S.name || 'you');
@@ -181,7 +181,7 @@ function stepScreen({ i = 0 }) {
     const foot = el('div.foot', {});
     if (step.autofill) foot.append(el('div.autofill', { onclick: () => { input.value = S.city || 'Seattle'; input.focus(); } },
       el('span', { html: ICON.pin }), 'AutoFill'));
-    if (open) foot.append(el('p.note.small', {}, 'Wren can hear and understand you'));
+    if (open) foot.append(el('p.note.small', {}, 'Evella can hear and understand you'));
     foot.append(el('div.pill', {}, input, btn));
     wrap.append(foot);
     setTimeout(() => input.focus(), 380);
@@ -237,7 +237,7 @@ function stepScreen({ i = 0 }) {
 function micInto(input, done) {
   const scrim = el('div.scrim.on');
   const bars = waveBars(30, true);
-  const label = el('p.note.center', { style: { marginTop: '10px' } }, 'Wren’s listening');
+  const label = el('p.note.center', { style: { marginTop: '10px' } }, 'Evella’s listening');
   const box = el('div', { style: { position: 'absolute', left: '32px', right: '32px', bottom: '150px',
     zIndex: '21', textAlign: 'center' } }, bars, label);
   $('#phone').append(scrim, box);
@@ -263,7 +263,7 @@ function sayitScreen() {
   return el('div', {},
     topbar(pct, () => go('step', { i: STEPS.length - 1 })),
     el('h1.q', { html: 'What does your dream<br>life look like?' }),
-    el('p.note', {}, 'The house. The morning. Who’s there.\nOut loud — Wren can’t carry what it hasn’t heard.'),
+    el('p.note', {}, 'The house. The morning. Who’s there.\nOut loud — Evella can’t carry what it hasn’t heard.'),
     el('div.grow'),
     el('div.stack.center.gap-m', { style: { paddingBottom: '20px' } },
       waveBars(28, false),
@@ -303,7 +303,7 @@ function listeningScreen() {
     live,
     el('div.grow'),
     el('div.stack.gap-m', { style: { paddingBottom: '18px' } },
-      bars, timer, el('p.note.center', {}, 'Wren’s listening'),
+      bars, timer, el('p.note.center', {}, 'Evella’s listening'),
       el('button.big', { style: { margin: '10px auto 0' },
         html: '<svg viewBox="0 0 24 24" fill="currentColor" stroke="none"><rect x="7" y="7" width="10" height="10" rx="2.6"/></svg>',
         onclick: () => Speech.stopListening() }))
@@ -316,11 +316,11 @@ function transcribedScreen() {
   const box = el('div', { style: { marginTop: '20px' } });
   const check = () => {
     box.innerHTML = '';
-    const r = Wren.clarity(field.value, S);
+    const r = Evella.clarity(field.value, S);
     if (r.ok || r.empty) return;
     // 不否定，不代写 —— 只是把那个空心的词指出来，然后提议
     box.append(el('p.note', { html:
-      `Wren can carry that. It flies further if it knows what <span class="vague">${r.word || 'it'}</span> looks like.` }));
+      `Evella can carry that. It flies further if it knows what <span class="vague">${r.word || 'it'}</span> looks like.` }));
     const sug = el('div.suggests');
     (r.suggestions || []).forEach(s => sug.append(el('button.chip', { onclick: () => {
       field.value = field.value.replace(/[.\s]+$/, '') + ' — ' + s;
@@ -336,14 +336,14 @@ function transcribedScreen() {
   return el('div', {},
     topbar(S.onboarded ? null : pct, () => go(S.onboarded ? 'home' : 'sayit')),
     el('h1.q', { html: 'What does your dream<br>life look like?' }),
-    el('p.eyebrow', { style: { marginTop: '22px' } }, 'Wren heard'),
+    el('p.eyebrow', { style: { marginTop: '22px' } }, 'Evella heard'),
     el('div', { style: { marginTop: '10px' } }, field),
     box,
     el('div.foot', {},
       el('button.btn.paper', { onclick: () => go('listening') }, 'Say it again'),
       el('button.btn', { onclick: () => {
         draft.text = field.value.trim();
-        if (!draft.text) return toast('Wren needs something to carry.');
+        if (!draft.text) return toast('Evella needs something to carry.');
         if (!S.onboarded) { S.dream = draft.text; draft.mode = 'dream'; }
         S.facts = [...new Set([...(S.facts || []), draft.text])].slice(-12);
         save();
@@ -362,7 +362,7 @@ function caughtScreen() {
   }}, b + '   ×')));
   return el('div', {},
     topbar((STEPS.length + 3) / (STEPS.length + 3), () => go('transcribed')),
-    el('h1.q', { html: 'Here’s what<br>Wren caught.' }),
+    el('h1.q', { html: 'Here’s what<br>Evella caught.' }),
     el('p.note', {}, 'Tap to remove anything it misheard.'),
     chips,
     el('div.foot', {}, el('button.btn', { onclick: () => {
@@ -380,7 +380,7 @@ function extract(text) {
   time.forEach(p => out.push(p.toLowerCase()));
   const noun = t.match(/\b(review|meeting|interview|call|presentation|conversation|house|rent|job|deadline|flight|date|exam)\b/gi) || [];
   noun.forEach(p => out.push('the ' + p.toLowerCase()));
-  if (!out.length) out.push(Wren.keyPhrase(t) || 'what you said');
+  if (!out.length) out.push(Evella.keyPhrase(t) || 'what you said');
   return [...new Set(out)].slice(0, 6);
 }
 
@@ -479,14 +479,14 @@ let made = null;
 
 function generatingScreen() {
   setTimeout(() => {
-    made = Wren.visions(S, draft.text, draft.mode);
+    made = Evella.visions(S, draft.text, draft.mode);
     go('picker');
   }, 2600);
   Speech.chirp({ near: true });
   return el('div', { style: { justifyContent: 'center', alignItems: 'center' } },
     el('div', { style: { marginTop: '-40px' } }, hero('flying')),
     el('div.center', { style: { marginTop: '26px', font: '400 30px/40px var(--serif)' } },
-      'Wren’s gone', el('br'), 'with it.'),
+      'Evella’s gone', el('br'), 'with it.'),
     el('p.note.center', { style: { marginTop: '14px' } }, 'Take three breaths. It won’t be long.'),
     el('p.eyebrow.center', { style: { position: 'absolute', bottom: '76px', left: 0, right: 0 } },
       'It comes back in your own words')
@@ -506,7 +506,7 @@ function pickerScreen() {
     topbar(null, () => go('home')),
     el('div', { style: { marginTop: '96px' } }, hero('full')),
     el('h1.q', { style: { marginTop: '10px' },
-      html: 'Wren came back<br><em>with three.</em>' }),
+      html: 'Evella came back<br><em>with three.</em>' }),
     cards,
     el('p.eyebrow.center', { style: { marginTop: '22px' } }, '‹  Swipe to the one you want  ›')
   );
@@ -595,7 +595,7 @@ function playerScreen({ i = 0 }) {
                         mins: Math.round(total / 60) + ' min', at: Date.now() });
       save();
       if (!S.onboarded) setTimeout(() => go('promise'), 900);
-      else toast('Wren’s up there with the rest of it.');
+      else toast('Evella’s up there with the rest of it.');
     }
   }
   function start() {
@@ -618,7 +618,7 @@ function playerScreen({ i = 0 }) {
   return el('div.onscene', {},
     sceneBg(T.cover),
     topbar(null, () => { leave(); go(S.onboarded ? 'home' : 'promise'); }),
-    el('div.center', { style: { marginTop: '70px', font: 'italic 400 22px/28px var(--serif)' } }, 'Echo'),
+    el('div.center', { style: { marginTop: '70px', font: 'italic 400 22px/28px var(--serif)' } }, 'Evella'),
     box,
     el('div.stack.gap-s', { style: { paddingBottom: '10px' } },
       el('div', { style: { font: '400 17px/24px var(--serif)', color: 'var(--fg-3)', marginBottom: '14px' } }, T.title),
@@ -661,7 +661,7 @@ function libraryScreen() {
 function meScreen() {
   const facts = el('div.stack', { style: { marginTop: '16px' } });
   const all = (S.facts || []).slice().reverse();
-  if (!all.length) facts.append(el('p.note', {}, 'Wren hasn’t learned anything yet.'));
+  if (!all.length) facts.append(el('p.note', {}, 'Evella hasn’t learned anything yet.'));
   all.forEach((f, idx) => facts.append(el('div', {
     style: { display: 'flex', gap: '12px', alignItems: 'center', padding: '11px 0',
              borderTop: idx ? '1px solid var(--hairline)' : 'none' } },
@@ -680,7 +680,7 @@ function meScreen() {
         el('p.note', { style: { marginTop: '2px' } },
           `Listening since today · ${(S.sessions || []).length} carried`))),
     el('div.card', { style: { marginTop: '18px', padding: '18px 20px 14px' } },
-      el('p.eyebrow', {}, 'What Wren remembers'), facts),
+      el('p.eyebrow', {}, 'What Evella remembers'), facts),
     el('p.eyebrow', { style: { marginTop: '26px' } }, 'Settings'),
     el('div.card', { style: { marginTop: '8px', padding: '0 0 2px' } },
       el('div', { style: { padding: '15px 18px', display: 'flex', justifyContent: 'space-between' } },
@@ -696,16 +696,16 @@ function meScreen() {
 /* ═══════════════════════════════════════════════ */
 function welcomeScreen() {
   const btn = el('button.btn.fade-up', { style: { animationDelay: '.85s' },
-    onclick: () => go(S.onboarded ? 'home' : 'step', { i: 0 }) }, S.onboarded ? 'Take me in' : 'Begin');
+    onclick: () => go(S.onboarded ? 'home' : 'step', { i: 0 }) }, S.onboarded ? 'Take me in' : 'Get started');
   return el('div', { style: { alignItems: 'center', textAlign: 'center' } },
     el('div.grow'),
-    el('img.mark-img.fade-up', { src: 'assets/logo-1024.png', alt: 'Wren',
+    el('img.mark-img.fade-up', { src: 'assets/logo-mark.png', alt: 'Evella',
       style: { animationDelay: '.05s' } }),
-    el('div.wordmark.fade-up', { style: { marginTop: '22px', animationDelay: '.35s' } }, 'Echo'),
+    el('div.wordmark.fade-up', { style: { marginTop: '18px', animationDelay: '.35s' } }, 'Evella'),
     el('p.fade-up', { style: { marginTop: '14px', font: '400 15px/24px var(--sans)',
         color: 'var(--fg-2)', maxWidth: '300px', animationDelay: '.6s' } },
-      'Small bird. The whole sky hears it.', el('br'),
-      'Say it out loud — Wren carries the rest.'),
+      'Tell Evella what’s on your mind.', el('br'),
+      'Get a personalized meditation', el('br'), 'made for this moment.'),
     el('div.grow'),
     el('div.foot', { style: { width: '100%', marginTop: '0' } }, btn)
   );
@@ -741,7 +741,7 @@ function faceScreen() {
   return el('div', {},
     topbar(1, () => { stream?.getTracks().forEach(t => t.stop()); go('transcribed'); }),
     el('h1.q', { html: 'Last thing — let’s see you.' }),
-    el('p.note', {}, 'Clear face, no filter. Everything Wren makes starts from this.'),
+    el('p.note', {}, 'Clear face, no filter. Everything Evella makes starts from this.'),
     cam,
     el('div.camrow', {},
       el('div.side', { html: ICON.pin, style: { opacity: '0', pointerEvents: 'none' } }),
