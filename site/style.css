@@ -160,12 +160,24 @@ h1 em, h2 em { font-style: italic; }
   opacity: 0; transform: translateY(14px) scale(.965);
   transition: opacity 1.5s var(--ease), transform 1.5s var(--ease);
 }
+/* 液态玻璃：底色是两层渐变 —— 上层是左上角的高光扫过，
+   下层是本体。高光做进 background 而不是伪元素，才不会盖住文字。
+   backdrop-filter 只加在这几个小胶囊上，不碰大面积模糊。 */
 .q b {
   display: block; font: italic 400 15px/1.45 var(--serif); font-weight: 400;
-  color: var(--ink);
-  background: rgba(255,255,255,.76); border: 1px solid var(--hairline);
-  border-radius: var(--r-full); padding: 11px 20px;
-  box-shadow: var(--lift-soft); text-align: left;
+  color: var(--ink); text-align: left;
+  padding: 12px 22px; border-radius: var(--r-full);
+  background:
+    linear-gradient(158deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,0) 46%),
+    linear-gradient(180deg, rgba(255,255,255,.72) 0%, rgba(255,247,241,.52) 100%);
+  backdrop-filter: blur(14px) saturate(155%);
+  -webkit-backdrop-filter: blur(14px) saturate(155%);
+  border: 1px solid rgba(255,255,255,.66);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 1px rgba(53,37,31,.05),
+    0 1px 2px rgba(53,37,31,.05),
+    0 12px 28px -10px rgba(53,37,31,.22);
 }
 .q.on { opacity: 1; transform: none; }
 .q.on b { animation: qbreathe 5.4s var(--ease-breath) infinite alternate; }
@@ -173,11 +185,13 @@ h1 em, h2 em { font-style: italic; }
   from { transform: translateY(3px); }
   to   { transform: translateY(-5px); }
 }
-/* 横向位置咬着球边算，屏幕再宽也不会被甩开 */
-.q.s1 { right: calc(50% + var(--orb) * 0.44); top: 0; }
-.q.s2 { left:  calc(50% + var(--orb) * 0.44); top: 26%; }
-.q.s3 { right: calc(50% + var(--orb) * 0.36); top: 58%; }
-.q.s4 { left:  calc(50% + var(--orb) * 0.36); top: 84%; }
+/* 横向位置咬着球边算，屏幕再宽也不会被甩开。
+   粒子云的可见半径约 0.40×--orb，所以系数要大于它才不会压到球上；
+   越靠近球的垂直中心圆越宽，系数就给得越大。 */
+.q.s1 { right: calc(50% + var(--orb) * 0.42); top: 10%; }
+.q.s2 { left:  calc(50% + var(--orb) * 0.47); top: 30%; }
+.q.s3 { right: calc(50% + var(--orb) * 0.47); top: 56%; }
+.q.s4 { left:  calc(50% + var(--orb) * 0.38); top: 78%; }
 
 /* ── slogan + 后展开的那一组 ────────────────────── */
 .hero-copy {
