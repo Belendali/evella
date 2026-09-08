@@ -1,0 +1,260 @@
+/* ═══════════════════════════════════════════════════
+   Evella · Landing
+   token 直接沿用 app/app.css 那一套 Quiet Signal
+   ═══════════════════════════════════════════════════ */
+
+:root {
+  --ink:      #35251F;
+  --ink-700:  #4A3529;
+  --ink-500:  #6E5546;
+  --ink-300:  #A18978;
+  --signal:   #E96F51;
+  --clay:     #E7A47E;
+  --peach:    #F6D2BE;
+  --paper:    #FFF8F1;
+  --bone:     #F4F0E8;
+
+  --fg:       var(--ink);
+  --fg-2:     rgba(53, 37, 31, .70);
+  --fg-3:     rgba(53, 37, 31, .48);
+  --hairline: rgba(53, 37, 31, .16);
+
+  --grad-signal: linear-gradient(180deg, #F28A66 0%, #E96F51 50%, #DA5734 100%);
+  --grad-paper:  linear-gradient(180deg, #FFFFFF 0%, #FFF3E9 45%, #FBE3D2 100%);
+  --lift-strong: inset 0 -1.5px 1.5px rgba(53,37,31,.20), 0 3px 10px -2px rgba(53,37,31,.24);
+  --lift-soft:   0 3px 10px -3px rgba(53,37,31,.16);
+  --lift-card:   0 18px 44px -20px rgba(53,37,31,.34);
+
+  --serif: 'Fraunces', Georgia, serif;
+  --sans:  'Inclusive Sans', -apple-system, system-ui, sans-serif;
+
+  --r-md: 20px; --r-lg: 28px; --r-full: 999px;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+
+  --pad: 24px;
+  --max: 1120px;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: var(--sans);
+  color: var(--fg);
+  background: var(--paper);
+  overflow-x: hidden;
+  line-height: 1.55;
+}
+img { max-width: 100%; display: block; }
+a { color: inherit; text-decoration: none; }
+
+/* 颗粒 —— 和 app 里 #grain 同一张图。
+   一定要按 section 分块铺：整页一层 fixed + mix-blend-mode 在滚动时
+   会把浏览器合成器压垮，整屏白掉（原型里踩过一次）。 */
+.grain { display: none; }
+.hero, section, footer { position: relative; }
+.hero::after, section::after, footer::after {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: url('img/grain-surface.png') 0 0 / 512px 512px;
+  mix-blend-mode: overlay; opacity: .5;
+}
+.hero > *, section > *, footer > * { position: relative; z-index: 1; }
+
+.wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--pad); }
+
+/* ── type ───────────────────────────────────────── */
+.eyebrow {
+  font: 500 11px/16px var(--sans);
+  letter-spacing: .16em; text-transform: uppercase; color: var(--fg-3);
+}
+h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -.02em; }
+h1 { font-size: clamp(40px, 9vw, 76px); line-height: 1.06; }
+h2 { font-size: clamp(30px, 5.4vw, 46px); line-height: 1.14; }
+h3 { font-size: 21px; line-height: 1.3; }
+h1 em, h2 em { font-style: italic; }
+.lede { font-size: clamp(16px, 2.1vw, 19px); line-height: 1.65; color: var(--fg-2); }
+
+/* ── buttons ────────────────────────────────────── */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  height: 56px; padding: 0 30px; border: 0; border-radius: var(--r-full);
+  font: 500 16px/1 var(--sans); cursor: pointer; white-space: nowrap;
+  transition: transform .16s var(--ease);
+}
+.btn:active { transform: scale(.97); }
+.btn.primary { background: var(--grad-signal); color: var(--paper); box-shadow: var(--lift-strong); }
+.btn.ghost {
+  background: var(--grad-paper); color: var(--ink);
+  border: 1px solid var(--hairline); box-shadow: var(--lift-soft);
+}
+.btn.sm { height: 44px; padding: 0 22px; font-size: 15px; }
+.btn svg { width: 18px; height: 18px; }
+
+/* ── nav ────────────────────────────────────────── */
+.nav {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255,248,241,.94);
+  border-bottom: 1px solid rgba(53,37,31,.08);
+}
+.nav .inner {
+  height: 68px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+}
+.brand { display: flex; align-items: center; gap: 9px; }
+.brand img { width: 30px; height: auto; }
+.brand span { font: 400 25px/1 var(--serif); letter-spacing: -.02em; }
+.nav .links { display: flex; gap: 30px; font-size: 15px; color: var(--fg-2); }
+.nav .links a:hover { color: var(--ink); }
+
+/* ── hero ───────────────────────────────────────── */
+.hero {
+  position: relative; overflow: hidden;
+  background: linear-gradient(178deg, #FFF8F1 0%, #F6D2BE 62%, #E7A47E 100%);
+  padding: clamp(56px, 9vw, 104px) 0 0;
+  text-align: center;
+}
+.hero .lede { max-width: 560px; margin: 20px auto 0; }
+.hero h1 { margin-top: 18px; }
+.hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 34px; }
+.hero .note { margin-top: 16px; font-size: 13px; color: var(--fg-3); }
+
+/* 悬在两侧的愿望气泡 —— 桌面才出现，手机上会挤 */
+.quote {
+  position: absolute; z-index: 2;
+  font: italic 400 15px/1.45 var(--serif); color: var(--ink);
+  background: rgba(255,255,255,.72); border: 1px solid var(--hairline);
+  border-radius: var(--r-full); padding: 11px 20px; max-width: 260px;
+  box-shadow: var(--lift-soft); text-align: left;
+  animation: float 7s var(--ease) infinite alternate;
+}
+.quote.q1 { left: 3%;  top: 16%; }
+.quote.q2 { right: 3%; top: 27%; animation-delay: -2.4s; }
+.quote.q3 { left: 6%;  top: 47%; animation-delay: -4.8s; }
+.quote.q4 { right: 5%; top: 58%; animation-delay: -1.2s; }
+@keyframes float { from { transform: translateY(-7px); } to { transform: translateY(7px); } }
+@media (max-width: 1000px) { .quote { display: none; } }
+
+/* 手机图从 hero 底部探出来，被下一节切住 */
+.hero .shots {
+  display: flex; justify-content: center; align-items: flex-end; gap: clamp(10px, 2.4vw, 26px);
+  margin-top: clamp(40px, 6vw, 66px);
+}
+.phone {
+  width: clamp(146px, 21vw, 244px); flex: 0 0 auto;
+  border-radius: clamp(22px, 3.2vw, 38px); overflow: hidden;
+  box-shadow: var(--lift-card); border: 1px solid rgba(53,37,31,.10);
+  background: var(--paper);
+}
+.phone.tall { margin-bottom: clamp(18px, 3vw, 40px); }
+
+/* ── section shell ──────────────────────────────── */
+section { padding: clamp(64px, 9vw, 118px) 0; }
+.sec-head { max-width: 620px; }
+.sec-head.center { margin: 0 auto; text-align: center; }
+.sec-head h2 { margin-top: 12px; }
+.sec-head .lede { margin-top: 16px; }
+
+/* ── features ───────────────────────────────────── */
+.features { background: var(--bone); }
+.grid {
+  display: grid; gap: 16px; margin-top: clamp(36px, 5vw, 56px);
+  grid-template-columns: repeat(auto-fit, minmax(272px, 1fr));
+}
+.card {
+  background: var(--paper); border: 1px solid var(--hairline);
+  border-radius: var(--r-lg); padding: 26px 24px 28px;
+  box-shadow: var(--lift-soft);
+}
+.card .ico {
+  width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center;
+  background: var(--grad-paper); border: 1px solid var(--hairline); font-size: 20px;
+  box-shadow: var(--lift-soft);
+}
+.card h3 { margin-top: 18px; }
+.card p { margin-top: 9px; font-size: 15px; color: var(--fg-2); }
+
+/* ── how it works ───────────────────────────────── */
+.steps { display: grid; gap: clamp(28px, 5vw, 64px); margin-top: clamp(40px, 6vw, 68px); }
+.step {
+  display: grid; gap: clamp(24px, 4vw, 56px); align-items: center;
+  grid-template-columns: 1fr minmax(0, 300px);
+}
+.step:nth-child(even) { grid-template-columns: minmax(0, 300px) 1fr; }
+.step:nth-child(even) .step-txt { order: 2; }
+.step .num {
+  font: 400 15px/1 var(--serif); color: var(--signal);
+  letter-spacing: .1em;
+}
+.step h3 { margin-top: 14px; font-size: clamp(24px, 3.4vw, 32px); }
+.step p { margin-top: 12px; font-size: 16px; color: var(--fg-2); max-width: 440px; }
+.step .shot { border-radius: 28px; overflow: hidden; box-shadow: var(--lift-card);
+  border: 1px solid rgba(53,37,31,.10); }
+@media (max-width: 760px) {
+  .step, .step:nth-child(even) { grid-template-columns: 1fr; }
+  .step:nth-child(even) .step-txt { order: 0; }
+  .step .shot { max-width: 260px; margin: 0 auto; }
+}
+
+/* ── sample player ──────────────────────────────── */
+.sample {
+  background: linear-gradient(180deg, #C28061 0%, #E8D6CB 58%, #DFD5CF 100%);
+}
+.player {
+  max-width: 560px; margin: clamp(32px, 5vw, 48px) auto 0;
+  background: rgba(255,255,255,.72); border: 1px solid rgba(255,255,255,.5);
+  border-radius: var(--r-lg); padding: 26px 24px 24px; box-shadow: var(--lift-card);
+}
+.player .row { display: flex; align-items: center; gap: 16px; }
+.player .play {
+  width: 62px; height: 62px; flex: 0 0 auto; border: 0; border-radius: var(--r-full);
+  background: var(--grad-signal); box-shadow: var(--lift-strong);
+  display: grid; place-items: center; cursor: pointer;
+  transition: transform .16s var(--ease);
+}
+.player .play:active { transform: scale(.94); }
+.player .play svg { width: 24px; height: 24px; fill: var(--paper); }
+.player .meta { min-width: 0; text-align: left; }
+.player .meta b { display: block; font: 400 19px/1.25 var(--serif); font-weight: 400; }
+.player .meta small { font-size: 13px; color: var(--fg-3); }
+.player .bar { height: 3px; border-radius: 2px; background: rgba(53,37,31,.16); margin-top: 20px; position: relative; }
+.player .bar i { position: absolute; inset: 0 auto 0 0; width: 0; border-radius: 2px; background: var(--signal); }
+.player .line {
+  margin-top: 20px; min-height: 62px; display: flex; align-items: center; justify-content: center;
+  font: 400 20px/1.35 var(--serif); color: var(--ink); text-align: center;
+  transition: opacity .4s var(--ease);
+}
+.player .hint { margin-top: 6px; font-size: 12px; color: var(--fg-3); }
+
+/* ── final cta ──────────────────────────────────── */
+.final { text-align: center; background: var(--paper); }
+.final .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 30px; }
+.mail { display: flex; gap: 8px; max-width: 420px; margin: 26px auto 0; }
+.mail input {
+  flex: 1; min-width: 0; height: 52px; padding: 0 20px; border-radius: var(--r-full);
+  border: 1px solid var(--hairline); background: var(--grad-paper);
+  font: 400 15px var(--sans); color: var(--ink); outline: none;
+}
+.mail input::placeholder { color: var(--ink-300); }
+.mail .btn { height: 52px; }
+.said { margin-top: 12px; font-size: 14px; color: var(--signal); min-height: 20px; }
+
+/* ── footer ─────────────────────────────────────── */
+footer { background: var(--bone); padding: 40px 0; border-top: 1px solid rgba(53,37,31,.08); }
+footer .inner { display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+footer small { font-size: 13px; color: var(--fg-3); }
+footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
+
+@media (max-width: 620px) {
+  .nav .links { display: none; }
+  .hero { text-align: left; }
+  .hero .lede { margin-left: 0; }
+  .hero .cta { justify-content: flex-start; }
+  .btn { width: 100%; }
+  .hero .cta .btn, .final .cta .btn { flex: 1 1 100%; }
+  .sec-head.center { text-align: left; }
+}
+
+/* 手机上三张并排会被切得七零八落，只留中间那张 Home */
+@media (max-width: 620px) {
+  .hero .shots .phone:first-child,
+  .hero .shots .phone:last-child { display: none; }
+  .hero .shots .phone.tall { width: 232px; margin-bottom: 0; }
+}
