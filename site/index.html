@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=23">
+<link rel="stylesheet" href="style.css?v=25">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -499,10 +499,14 @@ const WAITLIST_ENDPOINT = '';
   /* 指针位置相对球心，做平滑 —— 直接用原值会一顿一顿的 */
   let tx = 0, ty = 0, mx = 0, my = 0;
   let burst = 0;              // 点一下，粒子往外炸开再收回来
-  cv.addEventListener('pointerdown', function () {
-    burst = 1;
-    rings.push({ t0: t, fast: true });
-  });
+  // 触屏不做点击形变 —— 手指点在球上只会挡住看不到效果，
+  // 而且会跟页面滚动抢手势
+  if (!AUTO) {
+    cv.addEventListener('pointerdown', function () {
+      burst = 1;
+      rings.push({ t0: t, fast: true });
+    });
+  }
   addEventListener('pointermove', function (e) {
     const b = cv.getBoundingClientRect();
     tx = Math.max(-1.6, Math.min(1.6, (e.clientX - (b.left + b.width / 2)) / (b.width / 2)));

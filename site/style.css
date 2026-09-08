@@ -137,6 +137,7 @@ h1 em, h2 em { font-style: italic; }
   width: var(--orb); height: var(--orb);
   display: block; cursor: pointer;
 }
+@media (hover: none) { .orb { cursor: default; } }
 /* 外圈晕染用 radial-gradient，不用 filter: blur —— 大面积模糊会拖垮合成器 */
 .orb-halo {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
@@ -297,7 +298,7 @@ section { padding: clamp(64px, 9vw, 118px) 0; scroll-margin-top: 80px; }
 .deck .flip:nth-child(even) { margin-top: clamp(16px, 2.4vw, 34px); }
 
 .flip {
-  flex: 0 0 auto; width: clamp(148px, 15vw, 212px);
+  flex: 0 0 auto; width: clamp(168px, 17vw, 244px);
   aspect-ratio: 2 / 3;
   background: none; border: 0; padding: 0; cursor: pointer;
   opacity: 0; transform: translateY(24px);
@@ -322,7 +323,7 @@ section { padding: clamp(64px, 9vw, 118px) 0; scroll-margin-top: 80px; }
 .inner {
   position: relative; display: block; width: 100%; height: 100%;
   transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
-  transition: transform .85s var(--ease);
+  transition: transform 1.3s var(--ease);
 }
 .flip:hover .inner,
 .flip:focus-visible .inner,
@@ -334,7 +335,7 @@ section { padding: clamp(64px, 9vw, 118px) 0; scroll-margin-top: 80px; }
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
   box-shadow: 0 22px 46px -20px rgba(53,37,31,.44), 0 2px 6px -2px rgba(53,37,31,.16);
   /* 兜底：翻过去的那一面直接透明，backface-visibility 失效也不会露出镜像文字 */
-  transition: opacity .1s linear .42s;
+  transition: opacity .12s linear .62s;   /* 落在旋转的中点 */
 }
 .front { transform: rotateY(0deg); opacity: 1; }
 .flip:hover .front, .flip:focus-visible .front, .flip.on .front { opacity: 0; }
@@ -377,7 +378,7 @@ section { padding: clamp(64px, 9vw, 118px) 0; scroll-margin-top: 80px; }
     scroll-snap-type: x mandatory;
   }
   .deck::-webkit-scrollbar { display: none; }
-  .flip { width: 168px; scroll-snap-align: center; }
+  .flip { width: 210px; scroll-snap-align: center; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -500,14 +501,14 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
 .wl-x svg { width: 17px; height: 17px; }
 .wl-form { display: flex; gap: 8px; margin-top: 20px; }
 .wl-form input {
-  flex: 1; min-width: 0; height: 52px; padding: 0 18px;
+  flex: 1; min-width: 0; height: 56px; padding: 0 20px;
   border: 1px solid var(--hairline); border-radius: var(--r-full);
-  background: #fff; font: 400 15px var(--sans); color: var(--ink); outline: none;
+  background: #fff; font: 400 16px var(--sans); color: var(--ink); outline: none;
   transition: border-color .2s var(--ease);
 }
 .wl-form input:focus { border-color: var(--signal); }
 .wl-form input::placeholder { color: var(--ink-300); }
-.wl-form .btn { height: 52px; padding: 0 24px; }
+.wl-form .btn { height: 56px; padding: 0 24px; }
 .wl-err { min-height: 20px; margin-top: 10px; font-size: 13px; color: var(--signal); }
 .wl-tick {
   width: 54px; height: 54px; margin: 0 auto 16px; border-radius: 50%;
@@ -517,9 +518,12 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
 .wl-tick svg { width: 26px; height: 26px; }
 #wl-listen { margin-top: 22px; }
 
-@media (max-width: 480px) {
-  .wl-form { flex-direction: column; }
-  .wl-form .btn { width: 100%; }
+@media (max-width: 620px) {
+  .wl-form { flex-direction: column; gap: 10px; }
+  /* 必须清掉 flex:1 —— 竖排时 flex-basis:0 落在高度上，会把 height 压掉，
+     输入框会塌成一行文字那么高 */
+  .wl-form input, .wl-form .btn { flex: 0 0 auto; width: 100%; height: 58px; }
+  .wl-card { padding: 34px 22px 28px; }
 }
 
 /* ── 功能卡 hover ────────────────────────────────
