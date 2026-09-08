@@ -417,3 +417,73 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
   .orb-halo, .q.on b { animation: none; }
   .q { transition: none; }
 }
+
+/* ── 试听：三段切换 ─────────────────────────────── */
+.tracks {
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 9px;
+  margin-top: clamp(26px, 3.4vw, 38px);
+}
+.trk {
+  border: 1px solid rgba(255,255,255,.5); border-radius: var(--r-full);
+  padding: 9px 18px; cursor: pointer;
+  background: rgba(255,255,255,.34); color: var(--ink);
+  font: 400 14px/20px var(--serif);
+  transition: background .28s var(--ease), border-color .28s var(--ease);
+}
+.trk:hover { background: rgba(255,255,255,.55); }
+.trk.on {
+  background: var(--grad-signal); color: var(--paper);
+  border-color: transparent; box-shadow: var(--lift-soft);
+}
+
+/* ── waitlist 弹窗 ──────────────────────────────── */
+.wl {
+  position: fixed; inset: 0; z-index: 200;
+  display: grid; place-items: center; padding: 24px;
+  background: rgba(53,37,31,.42);
+  animation: wl-in .22s var(--ease);
+}
+.wl[hidden] { display: none; }
+@keyframes wl-in { from { opacity: 0; } to { opacity: 1; } }
+.wl-card {
+  position: relative; width: min(400px, 100%);
+  background: var(--grad-paper); border: 1px solid var(--hairline);
+  border-radius: var(--r-lg); padding: 34px 30px 30px;
+  box-shadow: 0 30px 70px -24px rgba(53,37,31,.5);
+  text-align: center;
+  animation: wl-pop .34s var(--ease);
+}
+@keyframes wl-pop { from { opacity: 0; transform: translateY(14px) scale(.97); } to { opacity: 1; transform: none; } }
+.wl-card h3 { font: 400 26px/32px var(--serif); color: var(--ink); }
+.wl-card p { margin-top: 10px; font-size: 15px; line-height: 1.55; color: var(--fg-2); }
+.wl-x {
+  position: absolute; right: 12px; top: 12px;
+  width: 36px; height: 36px; border: 0; border-radius: 50%;
+  background: none; color: var(--fg-3); cursor: pointer;
+  display: grid; place-items: center;
+}
+.wl-x:hover { background: rgba(53,37,31,.07); color: var(--ink); }
+.wl-x svg { width: 17px; height: 17px; }
+.wl-form { display: flex; gap: 8px; margin-top: 20px; }
+.wl-form input {
+  flex: 1; min-width: 0; height: 52px; padding: 0 18px;
+  border: 1px solid var(--hairline); border-radius: var(--r-full);
+  background: #fff; font: 400 15px var(--sans); color: var(--ink); outline: none;
+  transition: border-color .2s var(--ease);
+}
+.wl-form input:focus { border-color: var(--signal); }
+.wl-form input::placeholder { color: var(--ink-300); }
+.wl-form .btn { height: 52px; padding: 0 24px; }
+.wl-err { min-height: 20px; margin-top: 10px; font-size: 13px; color: var(--signal); }
+.wl-tick {
+  width: 54px; height: 54px; margin: 0 auto 16px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--grad-signal); color: var(--paper); box-shadow: var(--lift-strong);
+}
+.wl-tick svg { width: 26px; height: 26px; }
+#wl-listen { margin-top: 22px; }
+
+@media (max-width: 480px) {
+  .wl-form { flex-direction: column; }
+  .wl-form .btn { width: 100%; }
+}

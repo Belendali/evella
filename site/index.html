@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=14">
+<link rel="stylesheet" href="style.css?v=17">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -33,7 +33,7 @@
       <a href="#why">Why Evella</a>
       <a href="#listen">Listen</a>
     </div>
-    <a class="btn primary sm" href="../app/">Try it free</a>
+    <button class="btn primary sm" type="button" data-wl>Join waitlist</button>
   </div>
 </nav>
 
@@ -62,13 +62,13 @@
 
         <div class="reveal" id="reveal">
           <div class="cta">
-            <a class="btn primary" href="../app/">Try it free</a>
+            <button class="btn primary" type="button" data-wl>Join waitlist</button>
             <a class="btn ghost" href="#listen">
               <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-              Hear a real one
+              Try demo
             </a>
           </div>
-          <p class="note">Free to try in your browser · iPhone app coming soon</p>
+          <p class="note">iPhone app coming soon · listen to a real session below</p>
         </div>
       </div>
 
@@ -177,8 +177,14 @@
   <div class="wrap">
     <div class="sec-head center">
       <p class="eyebrow">Listen</p>
-      <h2>Twenty seconds of a real one</h2>
-      <p class="lede">This is an actual session, unedited. Headphones if you have them.</p>
+      <h2>Three real sessions</h2>
+      <p class="lede">Unedited, straight out of the app. Headphones if you have them.</p>
+    </div>
+
+    <div class="tracks" id="tracks">
+      <button class="trk on" type="button" data-t="1">He’s always thinking of me</button>
+      <button class="trk" type="button" data-t="2">Everything works out for me</button>
+      <button class="trk" type="button" data-t="3">I’m living my dream life</button>
     </div>
 
     <div class="player">
@@ -187,13 +193,13 @@
           <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
         </button>
         <div class="meta">
-          <b>He's always thinking of me</b>
+          <b id="trk-title">He’s always thinking of me</b>
           <small id="time">0:00</small>
         </div>
       </div>
       <div class="bar"><i id="fill"></i></div>
       <div class="line" id="line">Tap play</div>
-      <p class="hint">One of three sample sessions</p>
+      <p class="hint">Pick a session above</p>
     </div>
   </div>
 </section>
@@ -206,15 +212,9 @@
       <p class="lede">Say the thing you keep not saying. See what it sounds like coming back.</p>
     </div>
     <div class="cta">
-      <a class="btn primary" href="../app/">Try Evella free</a>
+      <button class="btn primary" type="button" data-wl>Join waitlist</button>
     </div>
-
-    <!-- TODO 这个表单还没接后端，提交只存在本地。上线前要接 Formspree / Mailchimp -->
-    <form class="mail" id="mail">
-      <input type="email" id="email" placeholder="you@email.com" required>
-      <button class="btn ghost" type="submit">Get the app</button>
-    </form>
-    <p class="said" id="said"></p>
+    <p class="note" style="margin-top:16px">One email, the day it opens on iPhone.</p>
   </div>
 </section>
 
@@ -230,67 +230,210 @@
   </div>
 </footer>
 
+<!-- ═══ WAITLIST ═══ -->
+<div class="wl" id="wl" hidden>
+  <div class="wl-card" role="dialog" aria-modal="true" aria-labelledby="wl-h">
+    <button class="wl-x" id="wl-x" type="button" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+           stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+
+    <div id="wl-step1">
+      <h3 id="wl-h">Join the waitlist</h3>
+      <p>We’ll email you the day Evella opens on iPhone. Nothing else.</p>
+      <form class="wl-form" id="wl-form" novalidate>
+        <input type="email" id="wl-email" placeholder="you@email.com" autocomplete="email" required>
+        <button class="btn primary" type="submit" id="wl-go">Join</button>
+      </form>
+      <p class="wl-err" id="wl-err"></p>
+    </div>
+
+    <div id="wl-step2" hidden>
+      <div class="wl-tick">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+             stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>
+      </div>
+      <h3>You’re on the list.</h3>
+      <p id="wl-done">We’ll write to you once, when it’s ready.</p>
+      <button class="btn ghost" type="button" id="wl-listen">Listen to a session</button>
+    </div>
+  </div>
+</div>
+
 <script>
-/* ── 试听：真录音 + 按句轮播，和 app 里播放页同一份数据 ── */
-const LINES = [
-  ['No matter what he is doing or who he is with,', 4.2],
-  ['he is always thinking about me.', 4.0],
-  ['Everything reminds him of me.', 4.0],
-  ['I am completely irreplaceable.', 4.0],
-  ['I am truly his dream girl.', 4.0],
-  ['He simply can’t get me off his mind.', 4.4],
-  ['He is constantly reaching out,', 3.4],
-  ['texting me, and calling me.', 4.2]
-];
-const marks = []; let acc = 0;
-LINES.forEach(([, s]) => { marks.push(acc); acc += s; });
-const fallback = acc;
+/* ══ 等待名单 ════════════════════════════════════
+   WAITLIST_ENDPOINT 填上 Formspree / Mailchimp 的地址就能真正收到邮箱。
+   留空时只写进本机 localStorage —— 也就是说，上线前不填这一行，
+   收集到的邮箱谁也拿不到。 */
+const WAITLIST_ENDPOINT = '';
 
-const audio = new Audio('../app/echo/audio/1.mp3');
-audio.preload = 'none';
-const $ = (id) => document.getElementById(id);
-const ICON_PLAY  = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
-const ICON_PAUSE = '<svg viewBox="0 0 24 24"><rect x="7" y="5" width="3.5" height="14" rx="1.4"/><rect x="13.5" y="5" width="3.5" height="14" rx="1.4"/></svg>';
+(function () {
+  const wl = document.getElementById('wl');
+  const form = document.getElementById('wl-form');
+  const email = document.getElementById('wl-email');
+  const err = document.getElementById('wl-err');
+  const go = document.getElementById('wl-go');
+  const s1 = document.getElementById('wl-step1');
+  const s2 = document.getElementById('wl-step2');
+  const done = document.getElementById('wl-done');
+  if (!wl) return;
 
-let timer = null, cur = -1;
-const total = () => (audio.duration && isFinite(audio.duration)) ? audio.duration : fallback;
-const scale = () => total() / fallback;
-const fmt = (s) => { s = Math.max(0, Math.round(s)); return Math.floor(s/60) + ':' + String(s%60).padStart(2,'0'); };
-
-function tick() {
-  const t = audio.currentTime || 0, T = total();
-  $('fill').style.width = (T ? t / T * 100 : 0) + '%';
-  $('time').textContent = fmt(t) + ' / ' + fmt(T);
-  let k = 0; for (let j = 0; j < marks.length; j++) if (t >= marks[j] * scale()) k = j;
-  if (k !== cur) {
-    cur = k;
-    const el = $('line');
-    el.style.opacity = 0;
-    setTimeout(() => { el.textContent = LINES[k][0]; el.style.opacity = 1; }, 160);
+  let lastFocus = null;
+  function open() {
+    lastFocus = document.activeElement;
+    s1.hidden = false; s2.hidden = true; err.textContent = '';
+    wl.hidden = false;
+    document.body.style.overflow = 'hidden';
+    setTimeout(function () { email.focus(); }, 60);
   }
-}
-$('play').onclick = () => {
-  if (audio.paused) {
-    audio.play().then(() => {
+  function close() {
+    wl.hidden = true;
+    document.body.style.overflow = '';
+    if (lastFocus) lastFocus.focus();
+  }
+  document.querySelectorAll('[data-wl]').forEach(function (b) { b.addEventListener('click', open); });
+  document.getElementById('wl-x').addEventListener('click', close);
+  wl.addEventListener('click', function (e) { if (e.target === wl) close(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !wl.hidden) close(); });
+  document.getElementById('wl-listen').addEventListener('click', function () {
+    close();
+    document.getElementById('listen').scrollIntoView({ behavior: 'smooth' });
+  });
+
+  form.addEventListener('submit', async function (e) {
+    e.preventDefault();
+    const v = email.value.trim();
+    if (!/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(v)) {
+      err.textContent = 'That doesn’t look like an email address.';
+      email.focus(); return;
+    }
+    err.textContent = '';
+    go.disabled = true; go.textContent = 'Joining…';
+    try {
+      if (WAITLIST_ENDPOINT) {
+        await fetch(WAITLIST_ENDPOINT, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({ email: v, source: 'evella-landing' })
+        });
+      }
+      try {
+        const all = JSON.parse(localStorage.getItem('evella_waitlist') || '[]');
+        if (all.indexOf(v) < 0) all.push(v);
+        localStorage.setItem('evella_waitlist', JSON.stringify(all));
+      } catch (_) {}
+      done.textContent = 'We’ll write to ' + v + ' once, when it’s ready.';
+      s1.hidden = true; s2.hidden = false;
+    } catch (_) {
+      err.textContent = 'Something went wrong. Try again in a moment.';
+    } finally {
+      go.disabled = false; go.textContent = 'Join';
+    }
+  });
+})();
+
+/* ══ 试听：三段真录音，按句轮播 ═══════════════════
+   文案和配速跟 app/echo/tracks.js 是同一份。 */
+(function () {
+  const TRACKS = {
+    1: { title: 'He’s always thinking of me', audio: '../app/echo/audio/1.mp3', lines: [
+      ['No matter what he is doing or who he is with,', 4.2],
+      ['he is always thinking about me.', 4.0],
+      ['Everything reminds him of me.', 4.0],
+      ['I am completely irreplaceable.', 4.0],
+      ['I am truly his dream girl.', 4.0],
+      ['He simply can’t get me off his mind.', 4.4],
+      ['He is constantly reaching out,', 3.4],
+      ['texting me, and calling me.', 4.2] ] },
+    2: { title: 'Everything works out for me', audio: '../app/echo/audio/2.mp3', lines: [
+      ['I love how everything always works out for me.', 4.8],
+      ['Everything I desire finds its way to me,', 4.4],
+      ['and wherever I go,', 2.8],
+      ['things naturally align in my favor.', 4.2],
+      ['Ideas flow to me effortlessly.', 4.0],
+      ['I am always in the right place', 3.4],
+      ['at the right time.', 4.0] ] },
+    3: { title: 'I’m living my dream life', audio: '../app/echo/audio/3.mp3', lines: [
+      ['My life is perfect.', 3.2],
+      ['I am living my dream life.', 3.8],
+      ['All of my dreams have manifested,', 4.0],
+      ['and every dream that comes next will manifest too.', 5.0],
+      ['I have everything I desire.', 3.8],
+      ['Life feels easy for me,', 3.2],
+      ['and everything always works in my favor.', 4.6],
+      ['My friends are kind, supportive,', 3.6],
+      ['and aligned with my values.', 3.8],
+      ['I adore myself,', 2.8],
+      ['I put myself first,', 2.8],
+      ['and I protect my energy.', 3.8],
+      ['I have everything I have ever dreamed of,', 4.4],
+      ['and my life is filled with blessings.', 4.4],
+      ['I am deeply fulfilled in my work', 3.6],
+      ['and my relationships.', 4.2] ] }
+  };
+
+  const $ = function (id) { return document.getElementById(id); };
+  const ICON_PLAY  = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+  const ICON_PAUSE = '<svg viewBox="0 0 24 24"><rect x="7" y="5" width="3.5" height="14" rx="1.4"/><rect x="13.5" y="5" width="3.5" height="14" rx="1.4"/></svg>';
+
+  const audio = new Audio();
+  audio.preload = 'none';
+  let T = null, marks = [], fallback = 0, timer = null, cur = -1;
+
+  function load(key, autoplay) {
+    T = TRACKS[key];
+    marks = []; let acc = 0;
+    T.lines.forEach(function (l) { marks.push(acc); acc += l[1]; });
+    fallback = acc; cur = -1;
+    audio.pause(); audio.src = T.audio; audio.currentTime = 0;
+    $('trk-title').textContent = T.title;
+    $('fill').style.width = '0%'; $('time').textContent = '0:00';
+    $('line').textContent = T.lines[0][0];
+    $('play').innerHTML = ICON_PLAY;
+    clearInterval(timer); timer = null;
+    document.querySelectorAll('.trk').forEach(function (b) {
+      b.classList.toggle('on', b.dataset.t === String(key));
+    });
+    if (autoplay) start();
+  }
+
+  const total = function () { return (audio.duration && isFinite(audio.duration)) ? audio.duration : fallback; };
+  const scale = function () { return total() / fallback; };
+  const fmt = function (s) { s = Math.max(0, Math.round(s)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+
+  function tick() {
+    const t = audio.currentTime || 0, Tt = total();
+    $('fill').style.width = (Tt ? t / Tt * 100 : 0) + '%';
+    $('time').textContent = fmt(t) + ' / ' + fmt(Tt);
+    let k = 0;
+    for (let j = 0; j < marks.length; j++) if (t >= marks[j] * scale()) k = j;
+    if (k !== cur) {
+      cur = k;
+      const el = $('line');
+      el.style.opacity = 0;
+      setTimeout(function () { el.textContent = T.lines[k][0]; el.style.opacity = 1; }, 160);
+    }
+  }
+  function start() {
+    audio.play().then(function () {
       $('play').innerHTML = ICON_PAUSE;
       if (!timer) timer = setInterval(tick, 100);
-    }).catch(() => { $('line').textContent = 'Tap again to play'; });
-  } else {
-    audio.pause(); $('play').innerHTML = ICON_PLAY;
+    }).catch(function () { $('line').textContent = 'Tap play'; });
   }
-};
-audio.addEventListener('ended', () => {
-  $('play').innerHTML = ICON_PLAY; clearInterval(timer); timer = null;
-  cur = -1; $('line').textContent = 'Play again'; $('fill').style.width = '100%';
-});
+  $('play').onclick = function () {
+    if (audio.paused) start();
+    else { audio.pause(); $('play').innerHTML = ICON_PLAY; }
+  };
+  audio.addEventListener('ended', function () {
+    $('play').innerHTML = ICON_PLAY; clearInterval(timer); timer = null;
+    cur = -1; $('line').textContent = 'Play again'; $('fill').style.width = '100%';
+  });
+  document.querySelectorAll('.trk').forEach(function (b) {
+    b.addEventListener('click', function () { load(b.dataset.t, true); });
+  });
 
-/* 邮箱：先只存本地，接后端之前不要当成真的收集到了 */
-$('mail').onsubmit = (e) => {
-  e.preventDefault();
-  try { localStorage.setItem('evella_waitlist', $('email').value); } catch (_) {}
-  $('said').textContent = 'Got it — we’ll email you the moment iOS is live.';
-  $('email').value = '';
-};
+  load(1, false);
+})();
 </script>
 
 <script>
