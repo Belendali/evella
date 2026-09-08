@@ -517,3 +517,62 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
   .wl-form { flex-direction: column; }
   .wl-form .btn { width: 100%; }
 }
+
+/* ── 功能卡 hover ────────────────────────────────
+   抬起 + 投影加深，另外有一团跟着指针走的暖光 */
+.card {
+  position: relative; overflow: hidden;
+  transition: transform .45s var(--ease), box-shadow .45s var(--ease),
+              border-color .45s var(--ease);
+}
+.card::after {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  pointer-events: none; opacity: 0;
+  transition: opacity .45s var(--ease);
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%),
+                              rgba(233,111,81,.14), transparent 66%);
+}
+.card > * { position: relative; z-index: 1; }
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 24px 46px -24px rgba(53,37,31,.36), var(--lift-soft);
+  border-color: rgba(53,37,31,.24);
+}
+.card:hover::after { opacity: 1; }
+.card .ico { transition: transform .45s var(--ease), box-shadow .45s var(--ease); }
+.card:hover .ico { transform: translateY(-2px) scale(1.07); }
+
+/* ── 渐变光点光标 ────────────────────────────────
+   只在有精确指针的设备上替换原生光标；输入框保留 I 形，
+   否则打字的时候找不到插入点 */
+.cur, .cur-halo {
+  display: none; position: fixed; left: 0; top: 0; z-index: 300;
+  pointer-events: none; border-radius: 50%;
+  will-change: transform;
+}
+.cur {
+  width: 12px; height: 12px; margin: -6px 0 0 -6px;
+  background: radial-gradient(circle,
+    rgba(255,246,240,.98) 0%, rgba(242,138,102,.92) 46%, rgba(233,111,81,0) 74%);
+  transition: width .3s var(--ease), height .3s var(--ease), margin .3s var(--ease);
+}
+.cur-halo {
+  width: 46px; height: 46px; margin: -23px 0 0 -23px;
+  background: radial-gradient(circle,
+    rgba(242,138,102,.30) 0%, rgba(233,111,81,.14) 42%, rgba(233,111,81,0) 70%);
+  transition: width .35s var(--ease), height .35s var(--ease), margin .35s var(--ease);
+}
+.cur.hot { width: 20px; height: 20px; margin: -10px 0 0 -10px; }
+.cur-halo.hot { width: 84px; height: 84px; margin: -42px 0 0 -42px; }
+.cur.off, .cur-halo.off { opacity: 0; }
+
+@media (hover: hover) and (pointer: fine) {
+  body { cursor: none; }
+  input, textarea { cursor: text; }
+  .cur, .cur-halo { display: block; }
+}
+@media (prefers-reduced-motion: reduce) {
+  body { cursor: auto; }
+  .cur, .cur-halo { display: none !important; }
+  .card { transition: none; }
+}

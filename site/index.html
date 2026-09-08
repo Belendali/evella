@@ -15,12 +15,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=19">
+<link rel="stylesheet" href="style.css?v=21">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
 
 <div class="grain"></div>
+<div class="cur-halo" id="cur-halo" aria-hidden="true"></div>
+<div class="cur" id="cur" aria-hidden="true"></div>
 
 <nav class="nav">
   <div class="wrap inner">
@@ -719,6 +721,58 @@ const WAITLIST_ENDPOINT = '';
       cards.forEach(function (o) { o.classList.remove('on'); });
       if (!was) c.classList.add('on');
     });
+  });
+})();
+
+/* ══ 渐变光点光标 ═════════════════════════════════
+   核心点跟得紧，外圈光晕跟得松，拉开才有"光"的感觉。
+   触屏和 reduced-motion 下整个不启用。 */
+(function () {
+  if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const core = document.getElementById('cur');
+  const halo = document.getElementById('cur-halo');
+  if (!core || !halo) return;
+
+  let tx = innerWidth / 2, ty = innerHeight / 2;
+  let cx = tx, cy = ty, hx = tx, hy = ty, seen = false;
+
+  addEventListener('pointermove', function (e) {
+    tx = e.clientX; ty = e.clientY;
+    if (!seen) { seen = true; cx = tx; cy = ty; hx = tx; hy = ty; }
+    core.classList.remove('off'); halo.classList.remove('off');
+    // 不能用 e.target —— 事件挂在 window 上，target 可能是 window 本身，没有 closest
+    const el = document.elementFromPoint(e.clientX, e.clientY);
+    const hot = !!(el && el.closest &&
+      el.closest('a, button, input, .flip, .card, .trk, [data-wl]'));
+    core.classList.toggle('hot', hot);
+    halo.classList.toggle('hot', hot);
+  }, { passive: true });
+
+  addEventListener('pointerleave', function () {
+    core.classList.add('off'); halo.classList.add('off');
+  });
+  addEventListener('blur', function () {
+    core.classList.add('off'); halo.classList.add('off');
+  });
+
+  (function frame() {
+    cx += (tx - cx) * 0.34; cy += (ty - cy) * 0.34;
+    hx += (tx - hx) * 0.13; hy += (ty - hy) * 0.13;
+    core.style.transform = 'translate(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px)';
+    halo.style.transform = 'translate(' + hx.toFixed(1) + 'px,' + hy.toFixed(1) + 'px)';
+    requestAnimationFrame(frame);
+  })();
+})();
+
+/* ══ 功能卡：暖光跟着指针在卡内移动 ══════════════ */
+(function () {
+  document.querySelectorAll('.features .card').forEach(function (c) {
+    c.addEventListener('pointermove', function (e) {
+      const b = c.getBoundingClientRect();
+      c.style.setProperty('--mx', ((e.clientX - b.left) / b.width * 100).toFixed(1) + '%');
+      c.style.setProperty('--my', ((e.clientY - b.top) / b.height * 100).toFixed(1) + '%');
+    }, { passive: true });
   });
 })();
 </script>
