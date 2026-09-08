@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=5">
+<link rel="stylesheet" href="style.css?v=6">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -41,13 +41,15 @@
 <header class="hero" id="top">
   <div class="wrap">
     <div class="orb-stage">
+      <div class="orb-wrap" id="orb-wrap">
       <div class="orb-halo" aria-hidden="true"></div>
       <canvas class="orb" id="orb" aria-hidden="true"></canvas>
       <div class="q-layer" id="quotes">
-        <span class="q s1">“I close on the house in March.”</span>
-        <span class="q s2">“I stop apologizing before I speak.”</span>
-        <span class="q s3">“My studio books out through summer.”</span>
-        <span class="q s4">“We’re back to laughing in the kitchen.”</span>
+        <span class="q s1"><b></b></span>
+        <span class="q s2"><b></b></span>
+        <span class="q s3"><b></b></span>
+        <span class="q s4"><b></b></span>
+      </div>
       </div>
     </div>
 
@@ -318,6 +320,15 @@ $('mail').onsubmit = (e) => {
   const rings = [];
   let t = 0, lastRing = 0;
 
+  /* 指针位置相对球心，做平滑 —— 直接用原值会一顿一顿的 */
+  let tx = 0, ty = 0, mx = 0, my = 0;
+  addEventListener('pointermove', function (e) {
+    const b = cv.getBoundingClientRect();
+    tx = Math.max(-1.6, Math.min(1.6, (e.clientX - (b.left + b.width / 2)) / (b.width / 2)));
+    ty = Math.max(-1.6, Math.min(1.6, (e.clientY - (b.top + b.height / 2)) / (b.height / 2)));
+  }, { passive: true });
+  addEventListener('pointerleave', function () { tx = 0; ty = 0; }, { passive: true });
+
   function frame(now) {
     t = now / 1000;
     ctx.clearRect(0, 0, W, H);
@@ -347,8 +358,15 @@ $('mail').onsubmit = (e) => {
     }
 
     /* 粒子 */
-    const ry = reduce ? 0.6 : t * 0.16;
-    const tilt = -0.34;
+    mx += (tx - mx) * 0.06;
+    my += (ty - my) * 0.06;
+    const mLen = Math.min(1, Math.hypot(mx, my));
+    const dx = mLen > 0.001 ? mx / Math.hypot(mx, my) : 0;
+    const dy = mLen > 0.001 ? my / Math.hypot(mx, my) : 0;
+    const bulge = mLen * 0.30;
+
+    const ry = reduce ? 0.6 : t * 0.16 + mx * 0.42;
+    const tilt = -0.34 + my * 0.3;
     const cosY = Math.cos(ry), sinY = Math.sin(ry);
     const cosX = Math.cos(tilt), sinX = Math.sin(tilt);
     const d = R * 3.0;
@@ -359,6 +377,14 @@ $('mail').onsubmit = (e) => {
       let z = -p.x * sinY + p.z * cosY;
       let y = p.y * cosX - z * sinX;
       z = p.y * sinX + z * cosX;
+
+      // 越朝着指针的那一面，越往外推 —— 球被"拉"过去
+      if (bulge > 0.001) {
+        const w = Math.max(0, x * dx + y * dy);
+        const k = w * w * bulge;
+        x += dx * k;
+        y += dy * k;
+      }
 
       const sc = d / (d - z * R);
       const px = cx + x * R * sc;
@@ -383,26 +409,67 @@ $('mail').onsubmit = (e) => {
   requestAnimationFrame(frame);
 })();
 
-/* ── 愿望句：一条一条渐显，停一下，再渐隐 ────────── */
+/* ── 愿望句 ──────────────────────────────────────
+   10 句轮流填进 4 个位置。淡入 1.5s、停住时上下轻浮、再淡出，
+   一次只出现一条。 */
 (function () {
-  const qs = [...document.querySelectorAll('#quotes .q')];
-  if (!qs.length) return;
+  const LINES = [
+    'My boyfriend is rich, gorgeous, and obsessed with me.',
+    'I wake up in my beach house, and it’s paid off.',
+    'My crush is already in love with me.',
+    'I make serious money doing what I love.',
+    'He texts me first, every single morning.',
+    'I fly first class and never check the price.',
+    'The apartment with the big windows is mine.',
+    'I turn the offers down now.',
+    'My skin is glowing and everyone notices.',
+    'Everything works out for me.'
+  ];
+  const slots = [...document.querySelectorAll('#quotes .q')];
+  if (!slots.length) return;
+
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    qs.forEach(q => q.classList.add('on'));
+    slots.forEach((s, i) => { s.querySelector('b').textContent = LINES[i]; s.classList.add('on'); });
     return;
   }
+
   let i = 0;
-  const HOLD = 3400, GAP = 900;
+  const HOLD = 3800, GAP = 1150, FADE = 1500;
   function step() {
-    const q = qs[i % qs.length];
-    q.classList.add('on');
-    setTimeout(() => {
-      q.classList.remove('on');
+    const el = slots[i % slots.length];
+    el.querySelector('b').textContent = LINES[i % LINES.length];
+    el.classList.add('on');
+    setTimeout(function () {
+      el.classList.remove('on');
       i++;
       setTimeout(step, GAP);
     }, HOLD);
   }
-  setTimeout(step, 500);
+  setTimeout(step, 600);
+})();
+
+/* ── 球：跟着鼠标鼓起来，往下滚就往后退 ────────────── */
+(function () {
+  const wrap = document.getElementById('orb-wrap');
+  const hero = document.querySelector('.hero');
+  if (!wrap || !hero) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(function () {
+      ticking = false;
+      const h = hero.getBoundingClientRect().height || innerHeight;
+      const p = Math.max(0, Math.min(1, scrollY / (h * 0.72)));
+      // 正的 translateY = 球比页面滚得慢，下面的文案就压上来
+      wrap.style.transform = 'translateY(' + (p * 140).toFixed(1) + 'px) scale(' + (1 - p * 0.4).toFixed(3) + ')';
+      wrap.style.opacity = (1 - p * 0.88).toFixed(3);
+    });
+  }
+  addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
 })();
 </script>
 </body>
