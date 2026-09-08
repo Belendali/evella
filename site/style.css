@@ -207,14 +207,17 @@ h1 em, h2 em { font-style: italic; }
 .reveal {
   position: absolute; left: 50%; top: 100%;
   width: min(470px, calc(100vw - 48px));
-  margin-top: 12px;
+  margin-top: 26px;
   transform: translateX(-50%) translateY(calc((1 - var(--r)) * 22px));
   opacity: var(--r);
   pointer-events: none;
 }
 .reveal.live { pointer-events: auto; }
-.hero .lede { margin: 0 auto; font-size: 15px; line-height: 1.6; color: var(--fg-3); }
-.hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+.hero .lede {
+  margin: 14px auto 0; max-width: min(430px, calc(100vw - 48px));
+  font-size: 15px; line-height: 1.6; color: var(--fg-3);
+}
+.hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .hero .note { margin-top: 16px; font-size: 13px; color: var(--fg-3); }
 
 /* ── 小箭头 ─────────────────────────────────────── */
