@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=3">
+<link rel="stylesheet" href="style.css?v=5">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -39,19 +39,21 @@
 
 <!-- ═══ HERO ═══ -->
 <header class="hero" id="top">
-  <div class="quote q1">“I close on the house in March.”</div>
-  <div class="quote q2">“I stop apologizing before I speak.”</div>
-  <div class="quote q3">“My studio books out through summer.”</div>
-  <div class="quote q4">“We're back to laughing in the kitchen.”</div>
-
   <div class="wrap">
+    <div class="orb-stage">
+      <div class="orb-halo" aria-hidden="true"></div>
+      <canvas class="orb" id="orb" aria-hidden="true"></canvas>
+      <div class="q-layer" id="quotes">
+        <span class="q s1">“I close on the house in March.”</span>
+        <span class="q s2">“I stop apologizing before I speak.”</span>
+        <span class="q s3">“My studio books out through summer.”</span>
+        <span class="q s4">“We’re back to laughing in the kitchen.”</span>
+      </div>
+    </div>
+
     <p class="eyebrow">Manifestation audio, written for you</p>
     <h1>Say it out loud.<br><em>Hear it come back.</em></h1>
-    <p class="lede">
-      Tell Evella what you're calling in — one sentence is enough. A minute later you get a
-      three-minute meditation built from your own words, your name and the people who matter,
-      narrated like it already happened.
-    </p>
+    <p class="lede">One sentence in. A three-minute meditation back, in your own words.</p>
     <div class="cta">
       <a class="btn primary" href="../app/">Try it free</a>
       <a class="btn ghost" href="#listen">
@@ -60,12 +62,6 @@
       </a>
     </div>
     <p class="note">Free to try in your browser · iPhone app coming soon</p>
-
-    <div class="shots">
-      <img class="phone" src="img/shot-welcome.jpg" alt="Evella welcome screen" loading="lazy">
-      <img class="phone tall" src="img/shot-home.jpg" alt="Evella home screen" loading="lazy">
-      <img class="phone" src="img/shot-player.jpg" alt="Evella player screen" loading="lazy">
-    </div>
   </div>
 </header>
 
@@ -85,32 +81,32 @@
       <div class="card">
         <div class="ico">🕊️</div>
         <h3>Your words, not a template</h3>
-        <p>Your name, your people, the sentence you actually spoke. No blanks filled into someone else's script.</p>
+        <p>Your name, your people, the sentence you actually said.</p>
       </div>
       <div class="card">
         <div class="ico">🎧</div>
         <h3>Narrated, not read out</h3>
-        <p>A real voice at a real pace, with birdsong and running water underneath it. Made for headphones.</p>
+        <p>A real voice, with birdsong and water underneath. Made for headphones.</p>
       </div>
       <div class="card">
         <div class="ico">⏱️</div>
         <h3>Three minutes</h3>
-        <p>Short enough to finish before you leave the house. That's the whole point — you'll actually do it tomorrow.</p>
+        <p>Short enough to finish before you leave the house.</p>
       </div>
       <div class="card">
         <div class="ico">🌅</div>
         <h3>A new one each morning</h3>
-        <p>Not a library you scroll until you give up. One session, built this morning, from what you've told it so far.</p>
+        <p>One session, built this morning. Not a library you scroll.</p>
       </div>
       <div class="card">
         <div class="ico">📷</div>
         <h3>See yourself there</h3>
-        <p>Add a photo and Evella shows you the life you just described — with you in it.</p>
+        <p>Add a photo and see the life you described, with you in it.</p>
       </div>
       <div class="card">
         <div class="ico">🔒</div>
         <h3>You can see what it knows</h3>
-        <p>Everything Evella remembers about you is listed in plain words, and you can delete any line of it.</p>
+        <p>Everything it remembers is listed in plain words. Delete any line.</p>
       </div>
     </div>
   </div>
@@ -277,6 +273,137 @@ $('mail').onsubmit = (e) => {
   $('said').textContent = 'Got it — we’ll email you the moment iOS is live.';
   $('email').value = '';
 };
+</script>
+
+<script>
+/* ── Hero 粒子球 ────────────────────────────────
+   橙白粒子分布在球面上慢转，核心有呼吸光晕，
+   每隔几秒扩散一圈 —— 那圈就是「正在播」的感觉。
+   用 canvas 2D + lighter 叠加，不碰 filter: blur。 */
+(function () {
+  const cv = document.getElementById('orb');
+  if (!cv) return;
+  const ctx = cv.getContext('2d');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const N = 2200;
+  const pts = [];
+  /* 球面均匀随机，不用斐波那契 —— 规则点阵投影出来会有同心摩尔纹。
+     半径给一点厚度，看着才像一团粒子而不是一层壳。 */
+  for (let i = 0; i < N; i++) {
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    const rr = 0.86 + Math.random() * 0.14;
+    pts.push({
+      x: Math.sin(ph) * Math.cos(th) * rr,
+      y: Math.cos(ph) * rr,
+      z: Math.sin(ph) * Math.sin(th) * rr,
+      s: Math.random()
+    });
+  }
+
+  let W = 0, H = 0, R = 0, dpr = 1;
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    const box = cv.getBoundingClientRect();
+    W = Math.max(1, Math.round(box.width));
+    H = Math.max(1, Math.round(box.height));
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    R = Math.min(W, H) * 0.345;
+  }
+  size();
+  addEventListener('resize', size);
+
+  const rings = [];
+  let t = 0, lastRing = 0;
+
+  function frame(now) {
+    t = now / 1000;
+    ctx.clearRect(0, 0, W, H);
+    const cx = W / 2, cy = H / 2;
+    const breathe = 0.5 + 0.5 * Math.sin(t * (Math.PI * 2 / 6.5));
+
+    ctx.globalCompositeOperation = 'lighter';
+
+    /* 核心光晕 */
+    const coreR = R * (0.92 + breathe * 0.16);
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
+    g.addColorStop(0,   'rgba(255,244,234,' + (0.30 + breathe * 0.16) + ')');
+    g.addColorStop(0.38,'rgba(242,138,102,' + (0.17 + breathe * 0.09) + ')');
+    g.addColorStop(1,   'rgba(233,111,81,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, 6.2832); ctx.fill();
+
+    /* 扩散的播放圈 */
+    if (!reduce && t - lastRing > 3.4) { rings.push({ t0: t }); lastRing = t; }
+    for (let i = rings.length - 1; i >= 0; i--) {
+      const age = (t - rings[i].t0) / 3.0;
+      if (age >= 1) { rings.splice(i, 1); continue; }
+      const rr = R * (0.86 + age * 0.85);
+      ctx.strokeStyle = 'rgba(246,210,190,' + (0.34 * (1 - age) * (1 - age)) + ')';
+      ctx.lineWidth = 1.1;
+      ctx.beginPath(); ctx.arc(cx, cy, rr, 0, 6.2832); ctx.stroke();
+    }
+
+    /* 粒子 */
+    const ry = reduce ? 0.6 : t * 0.16;
+    const tilt = -0.34;
+    const cosY = Math.cos(ry), sinY = Math.sin(ry);
+    const cosX = Math.cos(tilt), sinX = Math.sin(tilt);
+    const d = R * 3.0;
+
+    for (let i = 0; i < N; i++) {
+      const p = pts[i];
+      let x = p.x * cosY + p.z * sinY;
+      let z = -p.x * sinY + p.z * cosY;
+      let y = p.y * cosX - z * sinX;
+      z = p.y * sinX + z * cosX;
+
+      const sc = d / (d - z * R);
+      const px = cx + x * R * sc;
+      const py = cy + y * R * sc;
+
+      const depth = (z + 1) / 2;                       // 0 后 → 1 前
+      const pulse = 0.72 + 0.28 * Math.sin(t * 1.5 + p.s * 9.4);
+      const a = (0.04 + Math.pow(depth, 1.9) * 0.78) * pulse;
+      const rad = (0.22 + Math.pow(depth, 2.2) * 0.92) * sc * (0.55 + p.s * 0.8);
+
+      // 靠前偏白，靠后偏橙
+      const cr = Math.round(233 + depth * 22);
+      const cg = Math.round(105 + Math.pow(depth, 1.5) * 139);
+      const cb = Math.round(72 + Math.pow(depth, 1.8) * 162);
+      ctx.fillStyle = 'rgba(' + cr + ',' + cg + ',' + cb + ',' + a.toFixed(3) + ')';
+      ctx.beginPath(); ctx.arc(px, py, rad, 0, 6.2832); ctx.fill();
+    }
+
+    ctx.globalCompositeOperation = 'source-over';
+    if (!reduce) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+
+/* ── 愿望句：一条一条渐显，停一下，再渐隐 ────────── */
+(function () {
+  const qs = [...document.querySelectorAll('#quotes .q')];
+  if (!qs.length) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    qs.forEach(q => q.classList.add('on'));
+    return;
+  }
+  let i = 0;
+  const HOLD = 3400, GAP = 900;
+  function step() {
+    const q = qs[i % qs.length];
+    q.classList.add('on');
+    setTimeout(() => {
+      q.classList.remove('on');
+      i++;
+      setTimeout(step, GAP);
+    }, HOLD);
+  }
+  setTimeout(step, 500);
+})();
 </script>
 </body>
 </html>
