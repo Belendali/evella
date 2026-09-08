@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=8">
+<link rel="stylesheet" href="style.css?v=9">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -56,10 +56,10 @@
       </div>
 
       <div class="hero-copy" id="hero-copy">
-        <h1>Manifest the life<br><em>you want.</em></h1>
+        <h1>Manifest it.<br><em>Then live it.</em></h1>
 
         <div class="reveal" id="reveal">
-          <p class="lede">One sentence in. A three-minute meditation back, in your own words.</p>
+          <p class="lede">Say what you want. Get a three-minute meditation made just for you.</p>
           <div class="cta">
             <a class="btn primary" href="../app/">Try it free</a>
             <a class="btn ghost" href="#listen">
@@ -437,13 +437,13 @@ $('mail').onsubmit = (e) => {
   requestAnimationFrame(frame);
 })();
 
-/* ── 愿望句 ──────────────────────────────────────
-   10 句轮流填进 4 个位置。淡入 1.5s、停住时上下轻浮、再淡出，
-   一次只出现一条。 */
+/* ── 愿望句 ──────────────────────────────────
+   4 个位置各跑各的循环，错开起步，任何时刻场上有 2–3 条。
+   取词共用一个计数器，所以同屏不会撞词。 */
 (function () {
   const LINES = [
     'My boyfriend is rich, gorgeous, and obsessed with me.',
-    'I wake up in my beach house, and it’s paid off.',
+    'I wake up in my beach house, and it\u2019s paid off.',
     'My crush is already in love with me.',
     'I make serious money doing what I love.',
     'He texts me first, every single morning.',
@@ -457,24 +457,31 @@ $('mail').onsubmit = (e) => {
   if (!slots.length) return;
 
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    slots.forEach((s, i) => { s.querySelector('b').textContent = LINES[i]; s.classList.add('on'); });
+    slots.forEach(function (el, i) { el.querySelector('b').textContent = LINES[i]; el.classList.add('on'); });
     return;
   }
 
-  let i = 0;
-  const HOLD = 3800, GAP = 1150, FADE = 1500;
-  function step() {
-    const el = slots[i % slots.length];
-    el.querySelector('b').textContent = LINES[i % LINES.length];
-    el.classList.add('on');
-    setTimeout(function () {
-      el.classList.remove('on');
-      i++;
-      setTimeout(step, GAP);
-    }, HOLD);
-  }
-  setTimeout(step, 600);
+  let cursor = 0;
+  const next = function () { return LINES[cursor++ % LINES.length]; };
+
+  const HOLD  = 4200;
+  // 间隙各不相同，否则几轮之后会同步成一起明一起灭
+  const GAPS  = [1500, 2100, 1700, 2400];
+  const START = [300, 1200, 2100, 3000];
+
+  slots.forEach(function (el, i) {
+    function cycle() {
+      el.querySelector('b').textContent = next();
+      el.classList.add('on');
+      setTimeout(function () {
+        el.classList.remove('on');
+        setTimeout(cycle, GAPS[i]);
+      }, HOLD);
+    }
+    setTimeout(cycle, START[i]);
+  });
 })();
+
 
 /* ── 滚动编排 ──────────────────────────────────
    p: 0→1 贯穿整个 hero。球缩小后退，slogan 微微放大并上移，

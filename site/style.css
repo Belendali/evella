@@ -221,12 +221,16 @@ h1 em, h2 em { font-style: italic; }
   .hero-copy { transform: translateY(calc(var(--p) * -80px)); }
 }
 @media (max-width: 900px) {
-  /* 手机上球两侧没有位置，收成球下方同一个槽位轮播 */
-  .q, .q.s1, .q.s2, .q.s3, .q.s4 {
-    left: 50%; right: auto; top: auto; bottom: -8px;
+  /* 手机上球两侧放不下，改成一上一下两个槽位；
+     同屏最多两条，多了会叠在一起 */
+  .q, .q.s1, .q.s2 {
+    left: 50%; right: auto;
     max-width: min(320px, 84vw);
     transform: translate(-50%, 14px) scale(.965);
   }
+  .q.s1 { top: -46px; bottom: auto; }
+  .q.s2 { top: auto; bottom: -46px; }
+  .q.s3, .q.s4 { display: none; }
   .q b { text-align: center; font-size: 14px; }
   .q.on { transform: translate(-50%, 0); }
   .hero-copy { transform: translateY(calc(var(--p) * -76px)); }
