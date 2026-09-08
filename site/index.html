@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=17">
+<link rel="stylesheet" href="style.css?v=18">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -110,14 +110,14 @@
         <p>Short enough to finish before you leave the house.</p>
       </div>
       <div class="card">
-        <div class="ico">🌅</div>
-        <h3>A new one each morning</h3>
-        <p>One session, built this morning. Not a library you scroll.</p>
+        <div class="ico">✍️</div>
+        <h3>Written the moment you ask</h3>
+        <p>Anything you want to manifest — say it, and Evella writes you a proper manifestation script on the spot.</p>
       </div>
       <div class="card">
-        <div class="ico">📷</div>
-        <h3>See yourself there</h3>
-        <p>Add a photo and see the life you described, with you in it.</p>
+        <div class="ico">📱</div>
+        <h3>Right on your home screen</h3>
+        <p>A widget holds today’s affirmation, so you read it without opening anything.</p>
       </div>
       <div class="card">
         <div class="ico">🔒</div>
@@ -133,39 +133,64 @@
   <div class="wrap">
     <div class="sec-head center">
       <p class="eyebrow">What people ask for</p>
-      <h2>Five you’ll recognise</h2>
+      <h2>What everyone’s manifesting</h2>
       <p class="lede">Tap a card to see it said out loud.</p>
     </div>
 
-    <div class="deck">
+    <div class="deck" id="deck">
       <button class="flip" style="--i:0" type="button" aria-label="Falling in love">
-        <span class="inner">
-          <span class="face front"><img src="img/cards/love.jpg" alt="Falling in love" loading="lazy"></span>
-          <span class="face back"><em>He’s in love with me, and he says it first.</em></span>
+        <span class="bob">
+          <span class="inner">
+            <span class="face front">
+              <img src="img/cards/love.jpg" alt="Falling in love" loading="lazy">
+              <span class="tag">Falling in love</span>
+            </span>
+            <span class="face back"><em>“He’s in love with me, and he says it first.”</em></span>
+          </span>
         </span>
       </button>
       <button class="flip" style="--i:1" type="button" aria-label="The house">
-        <span class="inner">
-          <span class="face front"><img src="img/cards/house.jpg" alt="The house" loading="lazy"></span>
-          <span class="face back"><em>The house on the hill is mine, and it’s paid off.</em></span>
+        <span class="bob">
+          <span class="inner">
+            <span class="face front">
+              <img src="img/cards/house.jpg" alt="The house" loading="lazy">
+              <span class="tag">The house</span>
+            </span>
+            <span class="face back"><em>“The house on the hill is mine, and it’s paid off.”</em></span>
+          </span>
         </span>
       </button>
       <button class="flip" style="--i:2" type="button" aria-label="The proposal">
-        <span class="inner">
-          <span class="face front"><img src="img/cards/engagement.jpg" alt="The proposal" loading="lazy"></span>
-          <span class="face back"><em>He asked. It was exactly how I pictured it.</em></span>
+        <span class="bob">
+          <span class="inner">
+            <span class="face front">
+              <img src="img/cards/engagement.jpg" alt="The proposal" loading="lazy">
+              <span class="tag">The proposal</span>
+            </span>
+            <span class="face back"><em>“He asked. It was exactly how I pictured it.”</em></span>
+          </span>
         </span>
       </button>
       <button class="flip" style="--i:3" type="button" aria-label="Travel">
-        <span class="inner">
-          <span class="face front"><img src="img/cards/travel.jpg" alt="Travel" loading="lazy"></span>
-          <span class="face back"><em>I fly private and never check the price.</em></span>
+        <span class="bob">
+          <span class="inner">
+            <span class="face front">
+              <img src="img/cards/travel.jpg" alt="Travel" loading="lazy">
+              <span class="tag">Travel</span>
+            </span>
+            <span class="face back"><em>“I fly private and never check the price.”</em></span>
+          </span>
         </span>
       </button>
       <button class="flip" style="--i:4" type="button" aria-label="Family">
-        <span class="inner">
-          <span class="face front"><img src="img/cards/family.jpg" alt="Family" loading="lazy"></span>
-          <span class="face back"><em>My home is full, warm, and never rushed.</em></span>
+        <span class="bob">
+          <span class="inner">
+            <span class="face front">
+              <img src="img/cards/family.jpg" alt="Family" loading="lazy">
+              <span class="tag">Family</span>
+            </span>
+            <span class="face back"><em>“My home is full, warm, and never rushed.”</em></span>
+          </span>
         </span>
       </button>
     </div>
@@ -666,9 +691,25 @@ const WAITLIST_ENDPOINT = '';
   apply();
 })();
 
-/* 卡片：点一下翻面（手机上没有 hover），一次只翻一张 */
+/* 卡片：滚到跟前一张张渐显；点一下翻面（手机上没有 hover） */
 (function () {
+  const deck = document.getElementById('deck');
   const cards = [...document.querySelectorAll('.deck .flip')];
+  if (!deck || !cards.length) return;
+
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) {
+    cards.forEach(function (c) { c.classList.add('in'); });
+  } else {
+    const io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        cards.forEach(function (c) { c.classList.add('in'); });   // 延迟由 CSS 的 --i 排
+        io.disconnect();
+      });
+    }, { threshold: 0.18 });
+    io.observe(deck);
+  }
+
   cards.forEach(function (c) {
     c.addEventListener('click', function () {
       const was = c.classList.contains('on');
