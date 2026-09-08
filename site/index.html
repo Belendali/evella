@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=22">
+<link rel="stylesheet" href="style.css?v=23">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -463,6 +463,7 @@ const WAITLIST_ENDPOINT = '';
   const ctx = cv.getContext('2d');
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  const AUTO = !matchMedia('(hover: hover) and (pointer: fine)').matches;
   const N = 2200;
   const pts = [];
   /* 球面均匀随机，不用斐波那契 —— 规则点阵投影出来会有同心摩尔纹。
@@ -542,6 +543,11 @@ const WAITLIST_ENDPOINT = '';
     /* 粒子 */
     burst *= 0.955;
     if (burst < 0.002) burst = 0;
+    // 触屏没有指针，让形变方向自己慢慢绕圈，球才不是死的
+    if (AUTO) {
+      tx = Math.cos(t * 0.33) * 0.66;
+      ty = Math.sin(t * 0.21) * 0.52;
+    }
     mx += (tx - mx) * 0.06;
     my += (ty - my) * 0.06;
     const mLen = Math.min(1, Math.hypot(mx, my));
@@ -615,8 +621,11 @@ const WAITLIST_ENDPOINT = '';
     'My skin is glowing and everyone notices.',
     'Everything works out for me.'
   ];
-  const slots = [...document.querySelectorAll('#quotes .q')];
-  if (!slots.length) return;
+  const all = [...document.querySelectorAll('#quotes .q')];
+  if (!all.length) return;
+  // 手机上另外三个槽位是 display:none，不排除掉的话会有三轮空档
+  const solo = matchMedia('(max-width: 900px)').matches;
+  const slots = solo ? all.slice(0, 1) : all;
 
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
     slots.forEach(function (el, i) { el.querySelector('b').textContent = LINES[i]; el.classList.add('on'); });
@@ -628,8 +637,8 @@ const WAITLIST_ENDPOINT = '';
 
   const HOLD  = 4200;
   // 间隙各不相同，否则几轮之后会同步成一起明一起灭
-  const GAPS  = [1500, 2100, 1700, 2400];
-  const START = [300, 1200, 2100, 3000];
+  const GAPS  = solo ? [1400] : [1500, 2100, 1700, 2400];
+  const START = solo ? [400]  : [300, 1200, 2100, 3000];
 
   slots.forEach(function (el, i) {
     function cycle() {
