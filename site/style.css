@@ -41,7 +41,6 @@ body {
   font-family: var(--sans);
   color: var(--fg);
   background: var(--paper);
-  overflow-x: hidden;
   line-height: 1.55;
 }
 img { max-width: 100%; display: block; }
@@ -91,7 +90,7 @@ h1 em, h2 em { font-style: italic; }
 
 /* ── nav ────────────────────────────────────────── */
 .nav {
-  position: sticky; top: 0; z-index: 50;
+  position: fixed; top: 0; left: 0; right: 0; z-index: 50;
   background: rgba(255,248,241,.94);
   border-bottom: 1px solid rgba(53,37,31,.08);
 }
@@ -104,52 +103,56 @@ h1 em, h2 em { font-style: italic; }
 .nav .links { display: flex; gap: 30px; font-size: 15px; color: var(--fg-2); }
 .nav .links a:hover { color: var(--ink); }
 
-/* ── hero ───────────────────────────────────────── */
+/* ── hero：一屏只有球 + slogan + 箭头，往下滚才展开 ───── */
+/* 注意：.hero 不能有 overflow:hidden，body 也不能有 overflow-x:hidden，
+   任何祖先上的 overflow 都会让 position:sticky 失效。 */
 .hero {
-  position: relative; overflow: hidden;
+  position: relative;
   background: linear-gradient(178deg, #FFF8F1 0%, #F6D2BE 62%, #E7A47E 100%);
-  padding: clamp(28px, 4.5vw, 60px) 0 clamp(64px, 8vw, 104px);
   text-align: center;
 }
-.hero .eyebrow, .hero h1, .hero .lede, .hero .cta, .hero .note { position: relative; z-index: 2; }
-.hero .lede { max-width: 470px; margin: 16px auto 0; }
-.hero h1 { margin-top: 14px; }
-.hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 28px; }
-.hero .note { margin-top: 16px; font-size: 13px; color: var(--fg-3); }
-
-/* ── 中心粒子球 + 两侧轮播的愿望句 ─────────────── */
-.orb-stage {
-  position: relative; z-index: 0; width: 100%;
-  height: clamp(268px, 36vw, 430px);
-  margin: clamp(4px, 2vw, 18px) 0 clamp(22px, 3.4vw, 40px);
+.hero-stage { height: 200vh; }
+.hero-sticky {
+  position: sticky; top: 0;
+  height: 100vh; height: 100dvh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 0 24px;
+  --p: 0; --r: 0;
 }
-/* 滚动时整组往后退，下面的文案就压上来了 */
+
+/* ── 球 ─────────────────────────────────────────── */
+.orb-stage {
+  position: relative; z-index: 0; flex: 0 0 auto;
+  width: 100%; height: clamp(230px, 34vh, 380px);
+}
 .orb-wrap {
   position: absolute; inset: 0;
-  transform-origin: 50% 42%;
+  transform: translateY(calc(var(--p) * -30px)) scale(calc(1 - var(--p) * 0.56));
+  opacity: calc(1 - var(--p) * 0.6);
   will-change: transform, opacity;
 }
 .orb {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  width: clamp(268px, 36vw, 430px); height: clamp(268px, 36vw, 430px);
-  display: block;
+  width: clamp(230px, 34vh, 380px); height: clamp(230px, 34vh, 380px);
+  display: block; cursor: pointer;
 }
 /* 外圈晕染用 radial-gradient，不用 filter: blur —— 大面积模糊会拖垮合成器 */
 .orb-halo {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  width: min(clamp(420px, 58vw, 720px), 100vw);
-  height: min(clamp(420px, 58vw, 720px), 100vw);
+  width: min(clamp(380px, 54vh, 620px), 100vw);
+  height: min(clamp(380px, 54vh, 620px), 100vw);
   border-radius: 50%; pointer-events: none;
   background: radial-gradient(circle,
     rgba(233,111,81,.26) 0%, rgba(242,138,102,.16) 30%,
     rgba(246,210,190,.10) 52%, transparent 72%);
-  animation: halo 6.5s var(--ease-breath, cubic-bezier(.37,0,.63,1)) infinite alternate;
+  animation: halo 6.5s var(--ease-breath) infinite alternate;
 }
 @keyframes halo {
   from { transform: translate(-50%,-50%) scale(.92); opacity: .75; }
   to   { transform: translate(-50%,-50%) scale(1.06); opacity: 1; }
 }
 
+/* ── 愿望句 ─────────────────────────────────────── */
 .q-layer { position: absolute; inset: 0; pointer-events: none; }
 .q {
   position: absolute; max-width: 268px;
@@ -164,30 +167,81 @@ h1 em, h2 em { font-style: italic; }
   box-shadow: var(--lift-soft); text-align: left;
 }
 .q.on { opacity: 1; transform: none; }
-.q.on b { animation: qbreathe 5.4s var(--ease-breath, cubic-bezier(.37,0,.63,1)) infinite alternate; }
+.q.on b { animation: qbreathe 5.4s var(--ease-breath) infinite alternate; }
 @keyframes qbreathe {
   from { transform: translateY(3px); }
   to   { transform: translateY(-5px); }
 }
-.q.s1 { left: 0;    top: 10%; }
-.q.s2 { right: 0;   top: 33%; }
-.q.s3 { left: 3%;   top: 63%; }
-.q.s4 { right: 3%;  top: 84%; }
+.q.s1 { left: 0;   top: 6%; }
+.q.s2 { right: 0;  top: 30%; }
+.q.s3 { left: 3%;  top: 62%; }
+.q.s4 { right: 3%; top: 86%; }
 
+/* ── slogan + 后展开的那一组 ────────────────────── */
+.hero-copy {
+  position: relative; z-index: 2; flex: 0 0 auto;
+  transform: translateY(calc(var(--p) * -110px));
+  will-change: transform;
+}
+.hero-copy h1 {
+  transform: scale(calc(1 + var(--p) * 0.1));
+  transition: none;
+}
+/* 绝对定位，所以第一屏它不占位，slogan 才能真的居中 */
+.reveal {
+  position: absolute; left: 50%; top: 100%;
+  width: min(520px, calc(100vw - 48px));
+  margin-top: 20px;
+  transform: translateX(-50%) translateY(calc((1 - var(--r)) * 22px));
+  opacity: var(--r);
+  pointer-events: none;
+}
+.reveal.live { pointer-events: auto; }
+.hero .lede { margin: 0 auto; }
+.hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
+.hero .note { margin-top: 16px; font-size: 13px; color: var(--fg-3); }
+
+/* ── 小箭头 ─────────────────────────────────────── */
+.cue {
+  position: absolute; left: 50%; bottom: clamp(22px, 4vh, 44px);
+  width: 42px; height: 42px; margin-left: -21px;
+  display: grid; place-items: center; color: var(--fg-3);
+  opacity: calc(1 - var(--p) * 3.2);
+  animation: cue 2.4s var(--ease-breath) infinite;
+}
+.cue svg { width: 22px; height: 22px; }
+@keyframes cue {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+
+@media (max-height: 720px) {
+  .orb-stage, .orb { height: clamp(180px, 26vh, 240px); }
+  .orb { width: clamp(180px, 26vh, 240px); }
+  .hero-copy { transform: translateY(calc(var(--p) * -80px)); }
+}
 @media (max-width: 900px) {
   /* 手机上球两侧没有位置，收成球下方同一个槽位轮播 */
-  .orb-stage { height: clamp(300px, 74vw, 360px); padding-bottom: 60px; }
   .q, .q.s1, .q.s2, .q.s3, .q.s4 {
-    left: 50%; right: auto; top: auto; bottom: 0;
-    max-width: min(320px, 88vw);
+    left: 50%; right: auto; top: auto; bottom: -8px;
+    max-width: min(320px, 84vw);
     transform: translate(-50%, 14px) scale(.965);
   }
   .q b { text-align: center; font-size: 14px; }
   .q.on { transform: translate(-50%, 0); }
+  .hero-copy { transform: translateY(calc(var(--p) * -76px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-stage { height: auto; }
+  .hero-sticky { position: static; height: auto; padding: 72px 24px 88px; --p: 0; --r: 1; }
+  .orb-halo, .q.on b, .cue { animation: none; }
+  .reveal { position: static; transform: none; opacity: 1; width: auto; margin: 24px auto 0; }
+  .q { transition: none; }
 }
 
 /* ── section shell ──────────────────────────────── */
-section { padding: clamp(64px, 9vw, 118px) 0; }
+section { padding: clamp(64px, 9vw, 118px) 0; scroll-margin-top: 80px; }
 .sec-head { max-width: 620px; }
 .sec-head.center { margin: 0 auto; text-align: center; }
 .sec-head h2 { margin-top: 12px; }

@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=6">
+<link rel="stylesheet" href="style.css?v=8">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -39,31 +39,44 @@
 
 <!-- ═══ HERO ═══ -->
 <header class="hero" id="top">
-  <div class="wrap">
-    <div class="orb-stage">
-      <div class="orb-wrap" id="orb-wrap">
-      <div class="orb-halo" aria-hidden="true"></div>
-      <canvas class="orb" id="orb" aria-hidden="true"></canvas>
-      <div class="q-layer" id="quotes">
-        <span class="q s1"><b></b></span>
-        <span class="q s2"><b></b></span>
-        <span class="q s3"><b></b></span>
-        <span class="q s4"><b></b></span>
-      </div>
-      </div>
-    </div>
+  <div class="hero-stage">
+    <div class="hero-sticky" id="hero-sticky">
 
-    <p class="eyebrow">Manifestation audio, written for you</p>
-    <h1>Say it out loud.<br><em>Hear it come back.</em></h1>
-    <p class="lede">One sentence in. A three-minute meditation back, in your own words.</p>
-    <div class="cta">
-      <a class="btn primary" href="../app/">Try it free</a>
-      <a class="btn ghost" href="#listen">
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-        Hear a real one
+      <div class="orb-stage">
+        <div class="orb-wrap" id="orb-wrap">
+          <div class="orb-halo" aria-hidden="true"></div>
+          <canvas class="orb" id="orb" aria-label="Tap the orb"></canvas>
+          <div class="q-layer" id="quotes">
+            <span class="q s1"><b></b></span>
+            <span class="q s2"><b></b></span>
+            <span class="q s3"><b></b></span>
+            <span class="q s4"><b></b></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="hero-copy" id="hero-copy">
+        <h1>Hear the life<br><em>you want.</em></h1>
+
+        <div class="reveal" id="reveal">
+          <p class="lede">One sentence in. A three-minute meditation back, in your own words.</p>
+          <div class="cta">
+            <a class="btn primary" href="../app/">Try it free</a>
+            <a class="btn ghost" href="#listen">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              Hear a real one
+            </a>
+          </div>
+          <p class="note">Free to try in your browser · iPhone app coming soon</p>
+        </div>
+      </div>
+
+      <a class="cue" id="cue" href="#why" aria-label="Scroll down">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+             stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
       </a>
+
     </div>
-    <p class="note">Free to try in your browser · iPhone app coming soon</p>
   </div>
 </header>
 
@@ -322,6 +335,11 @@ $('mail').onsubmit = (e) => {
 
   /* 指针位置相对球心，做平滑 —— 直接用原值会一顿一顿的 */
   let tx = 0, ty = 0, mx = 0, my = 0;
+  let burst = 0;              // 点一下，粒子往外炸开再收回来
+  cv.addEventListener('pointerdown', function () {
+    burst = 1;
+    rings.push({ t0: t, fast: true });
+  });
   addEventListener('pointermove', function (e) {
     const b = cv.getBoundingClientRect();
     tx = Math.max(-1.6, Math.min(1.6, (e.clientX - (b.left + b.width / 2)) / (b.width / 2)));
@@ -349,15 +367,19 @@ $('mail').onsubmit = (e) => {
     /* 扩散的播放圈 */
     if (!reduce && t - lastRing > 3.4) { rings.push({ t0: t }); lastRing = t; }
     for (let i = rings.length - 1; i >= 0; i--) {
-      const age = (t - rings[i].t0) / 3.0;
+      const fast = rings[i].fast;
+      const age = (t - rings[i].t0) / (fast ? 1.1 : 3.0);
       if (age >= 1) { rings.splice(i, 1); continue; }
-      const rr = R * (0.86 + age * 0.85);
-      ctx.strokeStyle = 'rgba(246,210,190,' + (0.34 * (1 - age) * (1 - age)) + ')';
-      ctx.lineWidth = 1.1;
+      const rr = R * (0.86 + age * (fast ? 1.5 : 0.85));
+      const a = (fast ? 0.6 : 0.34) * (1 - age) * (1 - age);
+      ctx.strokeStyle = 'rgba(255,236,224,' + a + ')';
+      ctx.lineWidth = fast ? 1.8 : 1.1;
       ctx.beginPath(); ctx.arc(cx, cy, rr, 0, 6.2832); ctx.stroke();
     }
 
     /* 粒子 */
+    burst *= 0.955;
+    if (burst < 0.002) burst = 0;
     mx += (tx - mx) * 0.06;
     my += (ty - my) * 0.06;
     const mLen = Math.min(1, Math.hypot(mx, my));
@@ -377,6 +399,12 @@ $('mail').onsubmit = (e) => {
       let z = -p.x * sinY + p.z * cosY;
       let y = p.y * cosX - z * sinX;
       z = p.y * sinX + z * cosX;
+
+      // 点击后整颗球沿各自径向炸开，每颗粒子的幅度不一样才不像整体缩放
+      if (burst > 0) {
+        const k = burst * (0.30 + p.s * 0.85);
+        x += x * k; y += y * k; z += z * k;
+      }
 
       // 越朝着指针的那一面，越往外推 —— 球被"拉"过去
       if (bulge > 0.001) {
@@ -448,28 +476,41 @@ $('mail').onsubmit = (e) => {
   setTimeout(step, 600);
 })();
 
-/* ── 球：跟着鼠标鼓起来，往下滚就往后退 ────────────── */
+/* ── 滚动编排 ──────────────────────────────────
+   p: 0→1 贯穿整个 hero。球缩小后退，slogan 微微放大并上移，
+   描述和按钮在后半程才浮上来，落到视觉中心。 */
 (function () {
-  const wrap = document.getElementById('orb-wrap');
-  const hero = document.querySelector('.hero');
-  if (!wrap || !hero) return;
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const sticky = document.getElementById('hero-sticky');
+  const stage  = document.querySelector('.hero-stage');
+  const reveal = document.getElementById('reveal');
+  const cue    = document.getElementById('cue');
+  if (!sticky || !stage) return;
 
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    reveal.classList.add('live');
+    return;
+  }
+
+  const clamp = (v) => v < 0 ? 0 : v > 1 ? 1 : v;
   let ticking = false;
+
+  function apply() {
+    const total = Math.max(1, stage.offsetHeight - innerHeight);
+    const p = clamp(scrollY / total);
+    const r = clamp((p - 0.30) / 0.42);      // 后半程才现身
+    sticky.style.setProperty('--p', p.toFixed(4));
+    sticky.style.setProperty('--r', r.toFixed(4));
+    reveal.classList.toggle('live', r > 0.55);
+    if (cue) cue.style.pointerEvents = p > 0.25 ? 'none' : 'auto';
+  }
   function onScroll() {
     if (ticking) return;
     ticking = true;
-    requestAnimationFrame(function () {
-      ticking = false;
-      const h = hero.getBoundingClientRect().height || innerHeight;
-      const p = Math.max(0, Math.min(1, scrollY / (h * 0.72)));
-      // 正的 translateY = 球比页面滚得慢，下面的文案就压上来
-      wrap.style.transform = 'translateY(' + (p * 140).toFixed(1) + 'px) scale(' + (1 - p * 0.4).toFixed(3) + ')';
-      wrap.style.opacity = (1 - p * 0.88).toFixed(3);
-    });
+    requestAnimationFrame(function () { ticking = false; apply(); });
   }
   addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
+  addEventListener('resize', onScroll);
+  apply();
 })();
 </script>
 </body>
