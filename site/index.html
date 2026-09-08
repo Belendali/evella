@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=18">
+<link rel="stylesheet" href="style.css?v=19">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -336,11 +336,14 @@ const WAITLIST_ENDPOINT = '';
     go.disabled = true; go.textContent = 'Joining…';
     try {
       if (WAITLIST_ENDPOINT) {
-        await fetch(WAITLIST_ENDPOINT, {
+        // 必须看返回码 —— 只要 fetch 没抛异常就当成功的话，
+        // 服务端 500 了用户照样看到「你已在名单上」，邮箱却丢了
+        const res = await fetch(WAITLIST_ENDPOINT, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
           body: JSON.stringify({ email: v, source: 'evella-landing' })
         });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
       }
       try {
         const all = JSON.parse(localStorage.getItem('evella_waitlist') || '[]');
