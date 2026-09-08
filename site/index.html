@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -29,7 +29,7 @@
       <span>Evella</span>
     </a>
     <div class="links">
-      <a href="#how">How it works</a>
+      <a href="#how">Manifest</a>
       <a href="#why">Why Evella</a>
       <a href="#listen">Listen</a>
     </div>
@@ -128,44 +128,46 @@
   </div>
 </section>
 
-<!-- ═══ HOW ═══ -->
-<section id="how">
+<!-- ═══ CARDS ═══ -->
+<section class="deck-sec" id="how">
   <div class="wrap">
     <div class="sec-head center">
-      <p class="eyebrow">How it works</p>
-      <h2>One sentence to start</h2>
+      <p class="eyebrow">What people ask for</p>
+      <h2>Five you’ll recognise</h2>
+      <p class="lede">Tap a card to see it said out loud.</p>
     </div>
 
-    <div class="steps">
-      <div class="step">
-        <div class="step-txt">
-          <p class="num">01</p>
-          <h3>Say it</h3>
-          <p>Talk or type. “I want the house.” “I want to stop shrinking in meetings.”
-             You don't have to word it well — Evella asks the next question if it needs one.</p>
-        </div>
-        <img class="shot" src="img/shot-home.jpg" alt="Saying what you want" loading="lazy">
-      </div>
-
-      <div class="step">
-        <div class="step-txt">
-          <p class="num">02</p>
-          <h3>Evella writes it</h3>
-          <p>Your sentence becomes a three-minute narrated meditation — set where you live,
-             with the people you named in it, spoken as if it's already the case.</p>
-        </div>
-        <img class="shot" src="img/shot-player.jpg" alt="The generated session" loading="lazy">
-      </div>
-
-      <div class="step">
-        <div class="step-txt">
-          <p class="num">03</p>
-          <h3>Play it tomorrow morning</h3>
-          <p>And the morning after. Every session teaches it a little more about you,
-             so what comes back gets more exact — and more like your own voice.</p>
-        </div>
-        <img class="shot" src="img/shot-welcome.jpg" alt="Coming back daily" loading="lazy">
-      </div>
+    <div class="deck">
+      <button class="flip" style="--i:0" type="button" aria-label="Falling in love">
+        <span class="inner">
+          <span class="face front"><img src="img/cards/love.jpg" alt="Falling in love" loading="lazy"></span>
+          <span class="face back"><em>He’s in love with me, and he says it first.</em></span>
+        </span>
+      </button>
+      <button class="flip" style="--i:1" type="button" aria-label="The house">
+        <span class="inner">
+          <span class="face front"><img src="img/cards/house.jpg" alt="The house" loading="lazy"></span>
+          <span class="face back"><em>The house on the hill is mine, and it’s paid off.</em></span>
+        </span>
+      </button>
+      <button class="flip" style="--i:2" type="button" aria-label="The proposal">
+        <span class="inner">
+          <span class="face front"><img src="img/cards/engagement.jpg" alt="The proposal" loading="lazy"></span>
+          <span class="face back"><em>He asked. It was exactly how I pictured it.</em></span>
+        </span>
+      </button>
+      <button class="flip" style="--i:3" type="button" aria-label="Travel">
+        <span class="inner">
+          <span class="face front"><img src="img/cards/travel.jpg" alt="Travel" loading="lazy"></span>
+          <span class="face back"><em>I fly private and never check the price.</em></span>
+        </span>
+      </button>
+      <button class="flip" style="--i:4" type="button" aria-label="Family">
+        <span class="inner">
+          <span class="face front"><img src="img/cards/family.jpg" alt="Family" loading="lazy"></span>
+          <span class="face back"><em>My home is full, warm, and never rushed.</em></span>
+        </span>
+      </button>
     </div>
   </div>
 </section>
@@ -221,7 +223,7 @@
     <a class="brand" href="#top"><img src="img/logo-mark.png" alt=""><span>Evella</span></a>
     <div class="links">
       <a href="../app/">Try it</a>
-      <a href="#how">How it works</a>
+      <a href="#how">Manifest</a>
       <a href="#listen">Listen</a>
     </div>
     <small>© 2026 Evella</small>
@@ -519,6 +521,18 @@ $('mail').onsubmit = (e) => {
   addEventListener('scroll', onScroll, { passive: true });
   addEventListener('resize', onScroll);
   apply();
+})();
+
+/* 卡片：点一下翻面（手机上没有 hover），一次只翻一张 */
+(function () {
+  const cards = [...document.querySelectorAll('.deck .flip')];
+  cards.forEach(function (c) {
+    c.addEventListener('click', function () {
+      const was = c.classList.contains('on');
+      cards.forEach(function (o) { o.classList.remove('on'); });
+      if (!was) c.classList.add('on');
+    });
+  });
 })();
 </script>
 </body>
