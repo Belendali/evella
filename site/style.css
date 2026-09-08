@@ -118,12 +118,13 @@ h1 em, h2 em { font-style: italic; }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 0 24px;
   --p: 0; --r: 0;
+  --orb: clamp(230px, 34vh, 380px);
 }
 
 /* ── 球 ─────────────────────────────────────────── */
 .orb-stage {
   position: relative; z-index: 0; flex: 0 0 auto;
-  width: 100%; height: clamp(230px, 34vh, 380px);
+  width: 100%; height: var(--orb);
 }
 .orb-wrap {
   position: absolute; inset: 0;
@@ -133,7 +134,7 @@ h1 em, h2 em { font-style: italic; }
 }
 .orb {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  width: clamp(230px, 34vh, 380px); height: clamp(230px, 34vh, 380px);
+  width: var(--orb); height: var(--orb);
   display: block; cursor: pointer;
 }
 /* 外圈晕染用 radial-gradient，不用 filter: blur —— 大面积模糊会拖垮合成器 */
@@ -155,7 +156,7 @@ h1 em, h2 em { font-style: italic; }
 /* ── 愿望句 ─────────────────────────────────────── */
 .q-layer { position: absolute; inset: 0; pointer-events: none; }
 .q {
-  position: absolute; max-width: 268px;
+  position: absolute; max-width: min(250px, 30vw);
   opacity: 0; transform: translateY(14px) scale(.965);
   transition: opacity 1.5s var(--ease), transform 1.5s var(--ease);
 }
@@ -172,10 +173,11 @@ h1 em, h2 em { font-style: italic; }
   from { transform: translateY(3px); }
   to   { transform: translateY(-5px); }
 }
-.q.s1 { left: 0;   top: 6%; }
-.q.s2 { right: 0;  top: 30%; }
-.q.s3 { left: 3%;  top: 62%; }
-.q.s4 { right: 3%; top: 86%; }
+/* 横向位置咬着球边算，屏幕再宽也不会被甩开 */
+.q.s1 { right: calc(50% + var(--orb) * 0.44); top: 0; }
+.q.s2 { left:  calc(50% + var(--orb) * 0.44); top: 26%; }
+.q.s3 { right: calc(50% + var(--orb) * 0.36); top: 58%; }
+.q.s4 { left:  calc(50% + var(--orb) * 0.36); top: 84%; }
 
 /* ── slogan + 后展开的那一组 ────────────────────── */
 .hero-copy {
@@ -190,14 +192,14 @@ h1 em, h2 em { font-style: italic; }
 /* 绝对定位，所以第一屏它不占位，slogan 才能真的居中 */
 .reveal {
   position: absolute; left: 50%; top: 100%;
-  width: min(520px, calc(100vw - 48px));
-  margin-top: 20px;
+  width: min(470px, calc(100vw - 48px));
+  margin-top: 12px;
   transform: translateX(-50%) translateY(calc((1 - var(--r)) * 22px));
   opacity: var(--r);
   pointer-events: none;
 }
 .reveal.live { pointer-events: auto; }
-.hero .lede { margin: 0 auto; }
+.hero .lede { margin: 0 auto; font-size: 15px; line-height: 1.6; color: var(--fg-3); }
 .hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
 .hero .note { margin-top: 16px; font-size: 13px; color: var(--fg-3); }
 
