@@ -576,3 +576,19 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
   .cur, .cur-halo { display: none !important; }
   .card { transition: none; }
 }
+
+/* ── 卡片区的小星星拖尾 ─────────────────────────── */
+.spark {
+  position: fixed; z-index: 299; pointer-events: none;
+  width: var(--s); height: var(--s);
+  margin: calc(var(--s) / -2) 0 0 calc(var(--s) / -2);
+  animation: spark .95s var(--ease) forwards;
+  filter: drop-shadow(0 0 4px rgba(242,138,102,.5));
+}
+.spark svg { display: block; width: 100%; height: 100%; }
+@keyframes spark {
+  0%   { opacity: 0; transform: translate(0,0) scale(.25) rotate(0deg); }
+  20%  { opacity: 1; transform: translate(calc(var(--dx) * .28), calc(var(--dy) * .28)) scale(1) rotate(var(--r)); }
+  100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.4) rotate(var(--r)); }
+}
+@media (prefers-reduced-motion: reduce) { .spark { display: none; } }
