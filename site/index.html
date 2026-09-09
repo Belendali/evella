@@ -15,23 +15,14 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=30">
+<link rel="stylesheet" href="style.css?v=28">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
 
 <div class="grain"></div>
 <div class="cur-halo" id="cur-halo" aria-hidden="true"></div>
-<div class="cur" id="cur" aria-hidden="true"><span class="bird" id="bird">
-  <svg viewBox="0 0 40 30" aria-hidden="true">
-    <path class="tail" d="M7 16 L0.5 11.5 L2 19.5 Z"/>
-    <path class="body" d="M7 16 C11 10.5, 20 8.6, 27 10.4 C31.5 11.4, 34.6 13, 36 14.6
-                          C34 16.2, 31 17.4, 28 18 C21 19.6, 12.5 19.4, 7 16 Z"/>
-    <path class="beak" d="M36 14.6 L40 14.2 L35.8 16.4 Z"/>
-    <path class="wing" d="M17.5 14.6 C19.5 7.4, 25 3.6, 27.6 2.4 C26.6 8.2, 24.2 12.4, 21 15.6 Z"/>
-    <circle class="eye" cx="32.4" cy="13.4" r="1"/>
-  </svg>
-</span></div>
+<div class="cur" id="cur" aria-hidden="true"></div>
 
 <nav class="nav">
   <div class="wrap inner">
@@ -738,67 +729,43 @@ const WAITLIST_ENDPOINT = '';
   });
 })();
 
-/* ══ 光标：一只跟着指针飞的小鸟 ═══════════════════
-   身体跟得紧、尾迹光晕跟得松；朝向由速度方向决定，
-   往左飞就水平翻转（翻转之后旋转方向也要跟着取反）。
-   翅膀扇动的快慢跟速度挂钩，停下来就变成滑翔。 */
+/* ══ 渐变光点光标 ═════════════════════════════════
+   核心点跟得紧，外圈光晕跟得松，拉开才有"光"的感觉。
+   触屏和 reduced-motion 下整个不启用。 */
 (function () {
   if (!matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   const core = document.getElementById('cur');
   const halo = document.getElementById('cur-halo');
-  const bird = document.getElementById('bird');
-  if (!core || !halo || !bird) return;
+  if (!core || !halo) return;
 
   let tx = innerWidth / 2, ty = innerHeight / 2;
   let cx = tx, cy = ty, hx = tx, hy = ty, seen = false;
-  let vx = 0, vy = 0, dir = 1, pitch = 0, hot = false, scale = 1;
 
   addEventListener('pointermove', function (e) {
     tx = e.clientX; ty = e.clientY;
     if (!seen) { seen = true; cx = tx; cy = ty; hx = tx; hy = ty; }
     core.classList.remove('off'); halo.classList.remove('off');
+    // 不能用 e.target —— 事件挂在 window 上，target 可能是 window 本身，没有 closest
     const el = document.elementFromPoint(e.clientX, e.clientY);
-    hot = !!(el && el.closest &&
+    const hot = !!(el && el.closest &&
       el.closest('a, button, input, .flip, .card, .trk, [data-wl]'));
     core.classList.toggle('hot', hot);
     halo.classList.toggle('hot', hot);
   }, { passive: true });
 
-  const hide = function () { core.classList.add('off'); halo.classList.add('off'); };
-  addEventListener('pointerleave', hide);
-  addEventListener('blur', hide);
+  addEventListener('pointerleave', function () {
+    core.classList.add('off'); halo.classList.add('off');
+  });
+  addEventListener('blur', function () {
+    core.classList.add('off'); halo.classList.add('off');
+  });
 
   (function frame() {
-    const px = cx, py = cy;
-    cx += (tx - cx) * 0.18;
-    cy += (ty - cy) * 0.18;
-    hx += (tx - hx) * 0.08;
-    hy += (ty - hy) * 0.08;
-
-    vx = vx * 0.75 + (cx - px) * 0.25;
-    vy = vy * 0.75 + (cy - py) * 0.25;
-    const speed = Math.hypot(vx, vy);
-
-    if (speed > 0.35) {
-      dir = vx >= 0 ? 1 : -1;
-      // 只取俯仰，左右由 scaleX 处理，避免飞成倒的
-      const want = Math.atan2(vy, Math.abs(vx)) * 57.2958;
-      pitch += (Math.max(-38, Math.min(38, want)) - pitch) * 0.16;
-    } else {
-      pitch += (0 - pitch) * 0.08;          // 停下来就恢复水平
-    }
-
-    core.style.transform =
-      'translate(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px) rotate(' + (pitch * dir).toFixed(1) + 'deg)';
-    scale += ((hot ? 1.28 : 1) - scale) * 0.18;
-    bird.style.transform = 'scaleX(' + dir + ') scale(' + scale.toFixed(3) + ')';
+    cx += (tx - cx) * 0.34; cy += (ty - cy) * 0.34;
+    hx += (tx - hx) * 0.13; hy += (ty - hy) * 0.13;
+    core.style.transform = 'translate(' + cx.toFixed(1) + 'px,' + cy.toFixed(1) + 'px)';
     halo.style.transform = 'translate(' + hx.toFixed(1) + 'px,' + hy.toFixed(1) + 'px)';
-
-    // 飞得越快扇得越快；几乎不动时滑翔
-    const dur = Math.max(0.16, Math.min(1.5, 0.95 - speed * 0.035));
-    bird.style.setProperty('--flap', dur.toFixed(2) + 's');
-
     requestAnimationFrame(frame);
   })();
 })();
