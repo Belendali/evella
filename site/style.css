@@ -66,7 +66,7 @@ a { color: inherit; text-decoration: none; }
   letter-spacing: .16em; text-transform: uppercase; color: var(--fg-3);
 }
 h1, h2, h3 { font-family: var(--serif); font-weight: 400; letter-spacing: -.02em; }
-h1 { font-size: clamp(36px, 6.4vw, 60px); line-height: 1.08; }
+h1 { font-size: clamp(36px, 6.4vw, 74px); line-height: 1.08; }
 h2 { font-size: clamp(30px, 5.4vw, 46px); line-height: 1.14; }
 h3 { font-size: 21px; line-height: 1.3; }
 h1 em, h2 em { font-style: italic; }
@@ -118,7 +118,7 @@ h1 em, h2 em { font-style: italic; }
   display: flex; flex-direction: column; align-items: center; justify-content: center;
   padding: 0 24px;
   --p: 0; --r: 0;
-  --orb: clamp(230px, 34vh, 380px);
+  --orb: clamp(230px, max(34vh, 21vw), 440px);
 }
 
 /* ── 球 ─────────────────────────────────────────── */
@@ -157,7 +157,7 @@ h1 em, h2 em { font-style: italic; }
 /* ── 愿望句 ─────────────────────────────────────── */
 .q-layer { position: absolute; inset: 0; pointer-events: none; }
 .q {
-  position: absolute; max-width: min(250px, 30vw);
+  position: absolute; max-width: min(330px, 24vw);
   opacity: 0; transform: translateY(14px) scale(.965);
   transition: opacity 1.5s var(--ease), transform 1.5s var(--ease);
 }
@@ -165,7 +165,7 @@ h1 em, h2 em { font-style: italic; }
    下层是本体。高光做进 background 而不是伪元素，才不会盖住文字。
    backdrop-filter 只加在这几个小胶囊上，不碰大面积模糊。 */
 .q b {
-  display: block; font: italic 400 15px/1.45 var(--serif); font-weight: 400;
+  display: block; font: italic 400 clamp(15px, 1.05vw, 20px)/1.45 var(--serif); font-weight: 400;
   color: var(--ink); text-align: left;
   padding: 12px 22px; border-radius: var(--r-full);
   background:
@@ -189,10 +189,10 @@ h1 em, h2 em { font-style: italic; }
 /* 横向位置咬着球边算，屏幕再宽也不会被甩开。
    粒子云的可见半径约 0.40×--orb，所以系数要大于它才不会压到球上；
    越靠近球的垂直中心圆越宽，系数就给得越大。 */
-.q.s1 { right: calc(50% + var(--orb) * 0.42); top: 10%; }
-.q.s2 { left:  calc(50% + var(--orb) * 0.47); top: 30%; }
-.q.s3 { right: calc(50% + var(--orb) * 0.47); top: 56%; }
-.q.s4 { left:  calc(50% + var(--orb) * 0.38); top: 78%; }
+.q.s1 { right: calc(50% + max(var(--orb) * 0.42, 10.5vw)); top: 10%; }
+.q.s2 { left:  calc(50% + max(var(--orb) * 0.47, 11.5vw)); top: 30%; }
+.q.s3 { right: calc(50% + max(var(--orb) * 0.47, 11.5vw)); top: 56%; }
+.q.s4 { left:  calc(50% + max(var(--orb) * 0.38, 10vw));   top: 78%; }
 
 /* ── slogan + 后展开的那一组 ────────────────────── */
 .hero-copy {
@@ -215,8 +215,8 @@ h1 em, h2 em { font-style: italic; }
 }
 .reveal.live { pointer-events: auto; }
 .hero .lede {
-  margin: 14px auto 0; max-width: min(430px, calc(100vw - 48px));
-  font-size: 15px; line-height: 1.6; color: var(--fg-3);
+  margin: 14px auto 0; max-width: min(520px, calc(100vw - 48px));
+  font-size: clamp(15px, .95vw, 18px); line-height: 1.6; color: var(--fg-3);
 }
 .hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .hero .note { margin-top: 16px; font-size: 13px; color: var(--fg-3); }
@@ -600,3 +600,11 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
   100% { opacity: 0; transform: translate(var(--dx), var(--dy)) scale(.4) rotate(var(--r)); }
 }
 @media (prefers-reduced-motion: reduce) { .spark { display: none; } }
+
+/* ── 超宽屏：整体往两边放开，别都挤在中间一条 ───── */
+@media (min-width: 1600px) {
+  :root { --max: 1300px; --pad: 40px; }
+}
+@media (min-width: 2000px) {
+  :root { --max: 1480px; }
+}
