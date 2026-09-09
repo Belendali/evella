@@ -134,7 +134,8 @@ h1 em, h2 em { font-style: italic; }
 }
 .orb {
   position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
-  width: var(--orb); height: var(--orb);
+  /* 画布比球大一圈 —— 迸散时粒子会被方形画布边裁掉，露出直边 */
+  width: calc(var(--orb) * 1.45); height: calc(var(--orb) * 1.45);
   display: block; cursor: pointer;
 }
 @media (hover: none) { .orb { cursor: default; } }
@@ -274,6 +275,8 @@ section { padding: clamp(64px, 9vw, 118px) 0; scroll-margin-top: 80px; }
   display: grid; gap: 16px; margin-top: clamp(36px, 5vw, 56px);
   grid-template-columns: repeat(auto-fit, minmax(min(272px, 100%), 1fr));
 }
+/* 宽屏锁三列 —— auto-fit 在 1300 宽会挤出第四列，变成 4+2 */
+@media (min-width: 880px) { .grid { grid-template-columns: repeat(3, 1fr); } }
 .card {
   background: var(--paper); border: 1px solid var(--hairline);
   border-radius: var(--r-lg); padding: 26px 24px 28px;
@@ -323,7 +326,7 @@ section { padding: clamp(64px, 9vw, 118px) 0; scroll-margin-top: 80px; }
 .inner {
   position: relative; display: block; width: 100%; height: 100%;
   transform-style: preserve-3d; -webkit-transform-style: preserve-3d;
-  transition: transform 1.3s var(--ease);
+  transition: transform 1.15s ease-in-out;
 }
 .flip:hover .inner,
 .flip:focus-visible .inner,
@@ -335,7 +338,7 @@ section { padding: clamp(64px, 9vw, 118px) 0; scroll-margin-top: 80px; }
   backface-visibility: hidden; -webkit-backface-visibility: hidden;
   box-shadow: 0 22px 46px -20px rgba(53,37,31,.44), 0 2px 6px -2px rgba(53,37,31,.16);
   /* 兜底：翻过去的那一面直接透明，backface-visibility 失效也不会露出镜像文字 */
-  transition: opacity .12s linear .62s;   /* 落在旋转的中点 */
+  transition: opacity 0s linear .575s;   /* 瞬切，正好在转到 90° 那一刻 */
 }
 .front { transform: rotateY(0deg); opacity: 1; }
 .flip:hover .front, .flip:focus-visible .front, .flip.on .front { opacity: 0; }
