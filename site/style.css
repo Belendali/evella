@@ -159,8 +159,8 @@ h1 em, h2 em { font-style: italic; }
 .q-layer { position: absolute; inset: 0; pointer-events: none; }
 .q {
   position: absolute; max-width: min(330px, 24vw);
-  opacity: 0; transform: translateY(14px) scale(.965);
-  transition: opacity 1.5s var(--ease), transform 1.5s var(--ease);
+  opacity: 0; transform: translateY(20px) scale(.94);
+  transition: opacity 2.3s var(--ease), transform 2.3s var(--ease);
 }
 /* 液态玻璃：底色是两层渐变 —— 上层是左上角的高光扫过，
    下层是本体。高光做进 background 而不是伪元素，才不会盖住文字。
