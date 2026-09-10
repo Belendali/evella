@@ -228,6 +228,12 @@ h1 em, h2 em { font-style: italic; }
 .hero .lede {
   margin: 14px auto 0; max-width: min(580px, calc(100vw - 44px));
   font-size: clamp(15px, .95vw, 18px); line-height: 1.6; color: var(--fg-3);
+  /* 让浏览器把各行长度配平，否则窄屏上会掉出"in Evella."这种两词孤行 */
+  text-wrap: balance;
+}
+@media (max-width: 620px) {
+  /* 收窄一点，第二句自然断成两行匀称的，而不是一行长 + 两个词 */
+  .hero .lede { max-width: min(262px, calc(100vw - 64px)); }
 }
 .hero .cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
 .hero .note { margin-top: 16px; font-size: 13px; color: var(--fg-3); }
@@ -712,6 +718,17 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
    槽位留给那两个按钮。 */
 @media (max-width: 900px) {
   .wish { display: none; }
+
+  /* nav 是 fixed 的，会压住居中内容的上沿 —— 气泡就挂在最上面，
+     文字一长就被切进导航栏里。给 sticky 留出导航高度，球也收小一档。 */
+  .hero-sticky { padding-top: 96px; --orb: clamp(190px, 27vh, 270px); }
+
+  /* 手机上不做"滚动才出现"，两个按钮直接在首屏 */
+  .reveal {
+    opacity: 1;
+    transform: translate(-50%, -50%) translateY(34px);
+    pointer-events: auto;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .wish, .wish-go, .q-layer { transition: none; }
