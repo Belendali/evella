@@ -123,7 +123,7 @@ h1 em, h2 em { font-style: italic; }
   position: sticky; top: 0;
   height: 100vh; height: 100dvh;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 0 24px;
+  padding: 0 var(--pad);        /* 跟 nav 的 .wrap 用同一个值，才能和 logo 左边线对齐 */
   --p: 0; --r: 0;
   --orb: clamp(230px, max(34vh, 21vw), 440px);
 }
@@ -218,9 +218,9 @@ h1 em, h2 em { font-style: italic; }
 .reveal {
   position: absolute; left: 50%; top: 50%;
   width: min(470px, calc(100vw - 48px));
-  /* .reveal 里还包着底下那行小字，整组约 92px 高，
-     居中之后按钮会被带上去 18px —— 偏移要把这一段补回来 */
-  transform: translate(-50%, -50%) translateY(calc(34px + (1 - var(--r)) * 22px));
+  /* 偏移要跟 .reveal 的高度配套：现在组里只有按钮一行（56px），
+     去掉小字之后高度少了 36px，偏移相应从 34 减到 16 */
+  transform: translate(-50%, -50%) translateY(calc(16px + (1 - var(--r)) * 22px));
   opacity: var(--r);
   pointer-events: none;
 }
@@ -727,8 +727,11 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
   .reveal {
     opacity: 1; pointer-events: auto;
     left: 0; width: 100%;
-    transform: translateY(calc(-50% + 34px));
+    transform: translateY(calc(-50% + 12px));
   }
+  /* hero-copy 是收缩宽度的 flex 子项，会被居中 ——
+     不撑满的话左边线跟着标题走，而不是跟着容器边距 */
+  .hero-copy, .hero-slot { width: 100%; }
 }
 @media (prefers-reduced-motion: reduce) {
   .wish, .wish-go, .q-layer { transition: none; }
