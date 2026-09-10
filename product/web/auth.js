@@ -14,7 +14,7 @@
 
 const Auth = (() => {
 
-  const KEY = 'wren.account.v1';
+  const KEY = 'evella.account.v1';
 
   function current() {
     try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (_) { return null; }

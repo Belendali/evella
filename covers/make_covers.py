@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""Wren 封面生成器 — 网格渐变 + 光斑 + 胶片颗粒。
-配色取自 ~/wren/docs/03-VISUAL-DIRECTION.md 的 primitive tokens。"""
+"""Evella 封面生成器 — 网格渐变 + 光斑 + 胶片颗粒。
+配色取自 ~/evella/docs/03-VISUAL-DIRECTION.md 的 primitive tokens。"""
 
 import math, os, random
 from PIL import Image, ImageFilter, ImageChops
@@ -53,7 +53,7 @@ def build(name, size, palette, orb, grain=13, vignette=0.30, seed=7):
     w, h = size
     img = mesh(palette, size, seed)
 
-    # 光斑 —— Wren 的 orb 落在画面里
+    # 光斑 —— Evella 的 orb 落在画面里
     ox, oy, orad, ostr = orb
     glow = Image.new("RGB", size, (255, 252, 246))
     img = Image.composite(glow, img, radial(size, ox, oy, orad, int(255 * ostr), 0))

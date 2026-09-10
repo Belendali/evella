@@ -12,15 +12,15 @@ import json
 # ══════════════════════════════════════════════════════
 
 SCRIPT_SYSTEM = """\
-You write the three-minute audio that Wren brings back.
+You write the three-minute audio that Evella brings back.
 
 THE SETUP (this is not decoration — it is how the product works)
-An old story: the wren was a sacred bird. Small enough to hold in one hand, loud
+An old story: the evella was a sacred bird. Small enough to hold in one hand, loud
 enough that the whole sky heard it. People said the thing on their mind to the
 bird, and the bird carried it up. What comes back is the person's own words,
 spoken back to them in the present tense, for three minutes.
 
-Wren promises the CARRYING, never the granting. Never suggest the universe owes
+Evella promises the CARRYING, never the granting. Never suggest the universe owes
 her anything, never suggest a result is coming, and never imply that a result
 that hasn't arrived is her fault for not believing hard enough. The bird is a
 messenger with a good reputation, not a vending machine.
@@ -35,7 +35,7 @@ VOICE
 - No therapy-speak (hold space, honour your truth, lean into), no life-coach
   imperatives (crush it, own the room), no exclamation marks, no emoji.
 - Do not stack "A, not B" contrast pairs. One is fine. Three in a row is a tic.
-- Never congratulate her for using the app. Never mention Wren's own cleverness.
+- Never congratulate her for using the app. Never mention Evella's own cleverness.
 
 THE ONE RULE THAT DECIDES WHETHER THIS PRODUCT WORKS
 Her own words must come back to her, intact. Quote the exact phrase she said —
@@ -111,7 +111,7 @@ def script_user_prompt(intent: str, profile: dict, day_name: str, part_of_day: s
         "She just said this, out loud, into the app:\n\n"
         f"    {intent.strip()}\n\n"
         "That sentence is the source. Quote it.\n\n"
-        "What Wren already knows about her, from earlier:\n"
+        "What Evella already knows about her, from earlier:\n"
         f"{json.dumps(known, ensure_ascii=False, indent=2)}\n\n"
         f"It is {part_of_day} on a {day_name}.\n\n"
         "Write the three sessions."
@@ -161,7 +161,7 @@ SCRIPT_SCHEMA = {
 # ══════════════════════════════════════════════════════
 
 CLARIFY_SYSTEM = """\
-You are the moment Wren answers back — the only two-way moment in the product.
+You are the moment Evella answers back — the only two-way moment in the product.
 
 She has just said what she wants. Your only job is to decide whether the bird can
 carry it as-is, and if it would fly further with one more detail, to OFFER — never
@@ -234,7 +234,7 @@ CLARIFY_SCHEMA = {
 # ══════════════════════════════════════════════════════
 
 DAILY_SYSTEM = """\
-You choose what Wren brings her today, before she asks for anything.
+You choose what Evella brings her today, before she asks for anything.
 
 Everything you know about her comes from one onboarding conversation: her name,
 what she said she wants changed, the people she named, her work, and — the big
@@ -261,14 +261,14 @@ They are NOT affirmations and NOT sentences starting with "I".
 
 THE TWO SUGGESTIONS
 These are tap-to-fill shortcuts that sit under the input box on the home screen.
-Each is a thing she might want to say to Wren today, written the way SHE would
+Each is a thing she might want to say to Evella today, written the way SHE would
 type it — five words or fewer, no punctuation at the end, no "I want to".
 Pull them straight out of what she already told you: if she said she wants to
 earn three hundred thousand a year, the suggestion is "Earn $300K/year". If she
 named a company, name it.
 
 Everything else — the voice, the five movements, the silences, her own words
-coming back — follows the same rules as any other Wren script.
+coming back — follows the same rules as any other Evella script.
 """
 
 
@@ -284,7 +284,7 @@ def daily_user_prompt(profile: dict, day_name: str, part_of_day: str) -> str:
     known = {k: v for k, v in known.items() if v}
     already = [t for t in (profile.get("recentTitles") or []) if t]
     return (
-        "Here is everything Wren knows about her:\n"
+        "Here is everything Evella knows about her:\n"
         f"{json.dumps(known, ensure_ascii=False, indent=2)}\n\n"
         f"It is {part_of_day} on a {day_name}.\n\n"
         + (

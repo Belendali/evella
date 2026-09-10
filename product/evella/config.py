@@ -39,13 +39,13 @@ def anthropic_key() -> str:
 
 
 def anthropic_model() -> str:
-    return get("WREN_MODEL", "claude-opus-5")
+    return get("EVELLA_MODEL", "claude-opus-5")
 
 
 # ── 语音合成 ────────────────────────────────────────
 def tts_provider() -> str:
     """显式指定优先；否则谁有 key 用谁。都没有就交给浏览器。"""
-    forced = get("WREN_TTS_PROVIDER").lower()
+    forced = get("EVELLA_TTS_PROVIDER").lower()
     if forced in ("elevenlabs", "openai", "browser"):
         return forced
     if get("ELEVENLABS_API_KEY"):

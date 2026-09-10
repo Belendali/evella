@@ -137,11 +137,11 @@ def ensure(text: str):
             audio = _synthesize(text)
         except urllib.error.HTTPError as exc:
             detail = exc.read()[:400].decode("utf-8", "replace")
-            print("[wren] TTS %s 失败 %s：%s" % (config.tts_provider(), exc.code, detail), file=sys.stderr)
+            print("[evella] TTS %s 失败 %s：%s" % (config.tts_provider(), exc.code, detail), file=sys.stderr)
             _failed[key] = _failed.get(key, 0) + 1
             return None
         except Exception as exc:  # noqa: BLE001
-            print("[wren] TTS 失败：%s" % exc, file=sys.stderr)
+            print("[evella] TTS 失败：%s" % exc, file=sys.stderr)
             _failed[key] = _failed.get(key, 0) + 1
             return None
 

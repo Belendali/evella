@@ -1,7 +1,7 @@
 /* ══════════════════════════════════════════════════════
    没有后端的时候用这套（比如 GitHub Pages 上的静态部署）。
 
-   是 wren/generate.py 里那套模板的 JS 版本，输出结构完全一致 ——
+   是 evella/generate.py 里那套模板的 JS 版本，输出结构完全一致 ——
    所以流程能从头走到尾，稿子是拼的、声音是浏览器合成的。
    真东西要 `python3 serve.py` + .env 里的 key。
    ══════════════════════════════════════════════════════ */
@@ -57,7 +57,7 @@ const Offline = (() => {
       seg(`${you}.`, 1.4),
       seg(`It's ${day} ${part}.`, 1.2),
       seg(`You said: ${phrase}.`, 2.0),
-      seg(`Wren has that. It's already gone up with it.`, 1.8, true),
+      seg(`Evella has that. It's already gone up with it.`, 1.8, true),
       seg(`Let the next breath out slowly. All of it.`, 3.4)
     ];
     const breathe = () => [
@@ -78,7 +78,7 @@ const Offline = (() => {
       seg('One line to take with you.', 2.0),
       seg(line, 3.6),
       seg(line, 4.0),
-      seg(`That's it. Wren's already up there with the rest.`, 1.6, true)
+      seg(`That's it. Evella's already up there with the rest.`, 1.6, true)
     ];
 
     const one = [
@@ -132,7 +132,7 @@ const Offline = (() => {
     };
   }
 
-  /* ── 够不够具体 —— wren/generate.py 里 clarify_locally() 的 JS 版 ──
+  /* ── 够不够具体 —— evella/generate.py 里 clarify_locally() 的 JS 版 ──
      只要有以下任意一项就放行。绝不强制要求时间：
      「不在开口前先道歉」没有日期，但它极其具体，必须过。 */
   const TIME = /\b(today|tonight|tomorrow|monday|tuesday|wednesday|thursday|friday|saturday|sunday|morning|afternoon|evening|next week|this week|month|years?|spring|summer|autumn|fall|winter|january|february|march|april|may|june|july|august|september|october|november|december|\d{1,2}\s?(am|pm))\b/i;
@@ -176,7 +176,7 @@ const Offline = (() => {
     };
   }
 
-  /* ── 每日推荐 —— wren/generate.py 里 daily_locally() 的 JS 版 ── */
+  /* ── 每日推荐 —— evella/generate.py 里 daily_locally() 的 JS 版 ── */
   const DANGLING = new Set(['with','and','of','in','for','to','that','a','an','the','my','at','on']);
 
   function suggestions(profile) {

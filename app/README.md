@@ -1,7 +1,7 @@
-# Wren · 可跑的原型
+# Evella · 可跑的原型
 
 ```bash
-python3 -m http.server 8470 --directory ~/wren/app
+python3 -m http.server 8470 --directory ~/evella/app
 ```
 
 然后 `http://localhost:8470`。手机上打开同一个局域网地址效果最好 —— 它是按 390×844 做的，窄屏会自动铺满。
@@ -43,18 +43,18 @@ Welcome
   → Onboarding 14 步（城市 · 名字 · 孩子 · 想改变什么 · 为什么 ·〔回应〕·
      什么挡着你 · 重要的人 · 工作 · 对工作的感觉 · 关于你 · 过去 ·〔回应〕·〔换挡〕）
   → 说给小鸟听（待机 → 在听 → 转写确认）
-  → Wren caught（提取的细节，可删）
-  → Wren's promise
+  → Evella caught（提取的细节，可删）
+  → Evella's promise
   → Home
        ├ 说一件事 → 转写 →〔够不够具体·提议〕→ 生成 → 三选一 → 进入 → 播放
        └ 平常的一天 → 选一个状态 → 同上
   → Library（回来过的都在这儿）
-  → Me（What Wren remembers，每条可删）
+  → Me（What Evella remembers，每条可删）
 ```
 
 ## 想重头再来
 
-控制台里 `wrenReset()`，或者 Me → Start over。
+控制台里 `evellaReset()`，或者 Me → Start over。
 
 ---
 

@@ -36,7 +36,7 @@ const BIRD_SVG = '<svg viewBox="0 0 96 80"><path fill-rule="evenodd" d="M2 40 15
 const PERCH_SVG = '<svg viewBox="0 0 326 24" preserveAspectRatio="none"><path d="M0 14h236l6-9 5 18 6-13 5 6 4-4h58"/></svg>';
 
 /* ── 状态 ───────────────────────────────────── */
-const KEY = 'wren.v1';
+const KEY = 'evella.v1';
 let S = load();
 function load() {
   try { return JSON.parse(localStorage.getItem(KEY)) || fresh(); } catch (_) { return fresh(); }
@@ -47,7 +47,7 @@ function fresh() {
 }
 function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
 function reset() { localStorage.removeItem(KEY); S = fresh(); go('welcome'); }
-window.wrenReset = reset;
+window.evellaReset = reset;
 
 /* ── 路由 ───────────────────────────────────── */
 const stage = () => $('#stage');
@@ -98,18 +98,18 @@ const coverFor = (seed) => {
 
 /* 品牌素材的四个状态。同一只鸟，四个时刻。 */
 const HERO_SRC = {
-  full:      'assets/wren-home-01-thought-to-voice-animated.gif',
-  listening: 'assets/wren-home-02-listening-animated.gif',
-  rehearse:  'assets/wren-home-03-rehearsing-animated.webp',
-  ready:     'assets/wren-home-04-ready-to-go-animated.webp',
-  flying:    'assets/wren-bird-flying-up-transparent.webp'
+  full:      'assets/hero-01-animated.gif',
+  listening: 'assets/hero-02-animated.gif',
+  rehearse:  'assets/hero-03-animated.webp',
+  ready:     'assets/hero-04-animated.webp',
+  flying:    'assets/hero-rising.webp'
 };
 const HERO_FALLBACK = {
-  full:      'assets/wren-home-01-thought-to-voice.png',
-  listening: 'assets/wren-home-02-listening.png',
-  rehearse:  'assets/wren-home-03-rehearsing.png',
-  ready:     'assets/wren-home-04-ready-to-go.png',
-  flying:    'assets/wren-home-01-thought-to-voice.png'
+  full:      'assets/hero-01.png',
+  listening: 'assets/hero-02.png',
+  rehearse:  'assets/hero-03.png',
+  ready:     'assets/hero-04.png',
+  flying:    'assets/hero-01.png'
 };
 function hero(state = 'full') {
   const img = el('img', { src: HERO_SRC[state], alt: '' });
@@ -537,7 +537,7 @@ function storyIntroScreen({ i = 0 }) {
    文案按句轮播，落点由音频时间驱动。 */
 const FIRST_TRACK = {
   title: 'He’s always thinking of me',
-  audio: 'echo/audio/1.mp3',
+  audio: 'listen/audio/1.mp3',
   cover: 'assets/covers/cover-2.jpg',
   lines: [
     ['No matter what he is doing or who he is with,', 4.2],

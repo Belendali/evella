@@ -48,18 +48,18 @@ const API = (() => {
     try {
       return await post('api/generate', { intent, profile });
     } catch (err) {
-      console.warn('[wren] 后端生成失败，回退到本地模板：', err);
+      console.warn('[evella] 后端生成失败，回退到本地模板：', err);
       return Object.assign(Offline.script(intent, profile), { source: 'template-fallback' });
     }
   }
 
-  /* Home 上的「For you today」。她还没开口，Wren 先带回来三段。 */
+  /* Home 上的「For you today」。她还没开口，Evella 先带回来三段。 */
   async function daily(profile) {
     if (caps.offline) return Offline.daily(profile);
     try {
       return await post('api/daily', { profile });
     } catch (err) {
-      console.warn('[wren] 每日推荐回退到本地：', err);
+      console.warn('[evella] 每日推荐回退到本地：', err);
       return Object.assign(Offline.daily(profile), { source: 'template-fallback' });
     }
   }

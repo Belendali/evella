@@ -11,42 +11,42 @@
   <defs
      id="defs24" />
   <title
-     id="title2">Wren Quiet Signal — Horizontal Reverse Lockup</title>
+     id="title2">Evella Quiet Signal — Horizontal Color Lockup</title>
   <g
      transform="matrix(0.79,0,0,0.79,24,8)"
      id="g16">
     <path
        d="M 89,55 C 66,62 54,84 55,116 l 4,265 c 1,39 23,66 63,72 74,6 197,3 268,-2 40,-3 62,-29 64,-68 L 451,113 C 450,77 428,58 390,55 306,50 169,49 89,55 Z"
-       fill="#fff8f1"
+       fill="#35251f"
        id="path4" />
     <path
        id="circle6"
-       style="fill:#35251f"
+       style="fill:#e96f51"
        d="m 180,139 a 37,37 0 0 1 -37,37 37,37 0 0 1 -37,-37 37,37 0 0 1 37,-37 37,37 0 0 1 37,37 z" />
     <path
        d="m 187,319 -61,-29 40,-11 -27,-27 68,37 10,28 z"
-       fill="#35251f"
+       fill="#fff8f1"
        id="path8" />
     <path
        d="m 174,320 c 14,-31 39,-67 79,-88 26,-14 56,-12 74,6 11,10 18,21 23,31 l 31,10 -32,14 c -1,28 -16,51 -40,64 -30,17 -70,16 -102,-3 -14,-8 -25,-19 -33,-34 z"
-       fill="#35251f"
+       fill="#fff8f1"
        id="path10" />
     <path
        id="circle12"
-       style="fill:#fff8f1"
+       style="fill:#35251f"
        d="m 318,253 a 7,7 0 0 1 -7,7 7,7 0 0 1 -7,-7 7,7 0 0 1 7,-7 7,7 0 0 1 7,7 z" />
     <path
        d="m 78,377 h 250 c 12,0 18,-6 23,-18 5,-11 10,-17 17,-17 9,0 14,10 20,22 6,10 14,13 26,13 h 21"
-       stroke="#35251f"
+       stroke="#fff8f1"
        stroke-width="12"
        stroke-linecap="round"
        stroke-linejoin="round"
        id="path14" />
   </g>
   <g
-     aria-label="Wren"
+     aria-label="Evella"
      id="text18"
-     style="font-weight:500;font-size:230px;font-family:'Nimbus Sans', Arial, sans-serif;letter-spacing:-8;fill:#fff8f1">
+     style="font-weight:500;font-size:230px;font-family:'Nimbus Sans', Arial, sans-serif;letter-spacing:-8;fill:#35251f">
     <path
        d="M 641.12,290 683.67,122.33 H 659.75 L 628.93,258.49 590.75,122.33 h -23 L 530.49,258.49 498.98,122.33 H 475.06 L 518.07,290 h 23.46 L 579.02,152.23 617.66,290 Z"
        id="path28" />

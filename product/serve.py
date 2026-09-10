@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Wren —— 静态站 + 生成 API。只依赖标准库（Claude SDK 可选）。
+"""Evella —— 静态站 + 生成 API。只依赖标准库（Claude SDK 可选）。
 
     python3 serve.py            # 8471
     python3 serve.py --port 9000
@@ -29,7 +29,7 @@ sys.path.insert(0, str(ROOT))
 for site in sorted(ROOT.glob(".venv/lib/python*/site-packages")):
     sys.path.append(str(site))
 
-from wren import config, generate, tts  # noqa: E402
+from evella import config, generate, tts  # noqa: E402
 
 config.load_env()
 WEB = Path(__file__).resolve().parent / "web"
@@ -159,7 +159,7 @@ def main():
     args = parser.parse_args()
 
     state = config.status()
-    print("  Wren  ·  http://localhost:%d" % args.port)
+    print("  Evella  ·  http://localhost:%d" % args.port)
     print("  稿子   %s%s" % (state["script"], "（%s）" % state["model"] if state["model"] else ""))
     print("  声音   %s%s" % (state["tts"], "（%s）" % state["voice"] if state["voice"] else ""))
     if state["script"] == "template" or state["tts"] == "browser":

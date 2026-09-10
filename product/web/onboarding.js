@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════
-   Onboarding —— Figma section「Onboarding · Stella 弧线 + Wren 落点」
+   Onboarding —— Figma section「Onboarding · Stella 弧线 + Evella 落点」
 
    文档 2026-08-18 把 21 屏砍成 6 步问题 + 一个梦想提问，这里按简化版做：
      Welcome → 名字 → 想改变什么(语音) →〔回应〕→ 重要的人 → 工作
@@ -39,9 +39,9 @@ const Onboarding = (() => {
 
     return el('div.ob', { onclick: next },
       el('div.ob-spacer-top'),
-      el('img.ob-logo', { src: 'assets/img/logo-1024.png', alt: 'Wren' }),
-      el('h1.ob-brand', {}, 'Wren'),
-      el('div.ob-tagline', { html: 'Small bird. The whole sky hears it.<br>Say it out loud — Wren carries the rest.' }),
+      el('img.ob-logo', { src: 'assets/img/logo-1024.png', alt: 'Evella' }),
+      el('h1.ob-brand', {}, 'Evella'),
+      el('div.ob-tagline', { html: 'Small bird. The whole sky hears it.<br>Say it out loud — Evella carries the rest.' }),
       el('div.ob-spacer-bottom'),
       el('button.btn.ob-cta', { type: 'button', onclick: next }, 'Begin'));
   }
@@ -57,7 +57,7 @@ const Onboarding = (() => {
         go('ob-name');
       } catch (err) {
         if (err && err.message === 'bad-email') return;
-        console.warn('[wren] 登录失败：', err);
+        console.warn('[evella] 登录失败：', err);
         toast(label + ' 没走通 —— 换一个试试');
       }
     };
@@ -100,7 +100,7 @@ const Onboarding = (() => {
     return el('div.ob.login', {},
       el('div.ob-spacer-top'),
       el('img.ob-logo.small', { src: 'assets/img/logo-1024.png', alt: '' }),
-      el('h1.login-title', {}, 'Wren keeps what you tell it.'),
+      el('h1.login-title', {}, 'Evella keeps what you tell it.'),
       el('p.login-note', {}, "So tomorrow's three minutes still know who you are."),
       el('div.ob-spacer-bottom'),
       el('div.login-actions', {},
@@ -180,7 +180,7 @@ const Onboarding = (() => {
     const box = el('div.dictate', {},
       heard,
       bars,
-      el('p.label.center', { style: { color: 'var(--fg-muted)', margin: '14px 0 20px' } }, "Wren's listening"),
+      el('p.label.center', { style: { color: 'var(--fg-muted)', margin: '14px 0 20px' } }, "Evella's listening"),
       el('button.mic-big', { type: 'button', onclick: stop }, el('div.square')),
       el('p.dictate-hint', {}, 'Tap when you\u2019re done'));
     const scrim = el('div.scrim.on', { onclick: stop });
@@ -257,8 +257,8 @@ const Onboarding = (() => {
 
     return el('div.ob', {},
       topbar('people', () => go('ob-mirror1')),
-      el('h1.ob-q', { html: 'Who are the people<br>Wren should know<br>matter most to you?' }),
-      el('p.ob-note', {}, 'Wren carries their names too.'),
+      el('h1.ob-q', { html: 'Who are the people<br>Evella should know<br>matter most to you?' }),
+      el('p.ob-note', {}, 'Evella carries their names too.'),
       list,
       el('button.btn.ob-cta', { type: 'button', onclick: () => go('ob-work') }, 'Continue'));
   }
@@ -318,7 +318,7 @@ const Onboarding = (() => {
       el('div.ob-live', {}, live),
       el('div.ob-mic-block', {},
         bars, timer,
-        el('p.label.center', { style: { color: 'var(--fg-muted)' } }, "Wren's listening"),
+        el('p.label.center', { style: { color: 'var(--fg-muted)' } }, "Evella's listening"),
         el('button.mic-big', { type: 'button', onclick: () => Speech.stopListening() }, el('div.square'))));
   }
 
@@ -335,7 +335,7 @@ const Onboarding = (() => {
       topbar('transcribed', () => go('ob-dream')),
       el('h1.ob-q', { html: 'What does your dream<br>life look like?' }),
       el('div.heard ob-heard', {},
-        el('p.caption.cap', {}, 'Wren heard'),
+        el('p.caption.cap', {}, 'Evella heard'),
         el('div.heard-field', {}, field),
         el('p.heard-hint', {}, 'Tap to fix anything it misheard.'),
         el('button.chip.again', {
@@ -371,14 +371,14 @@ const Onboarding = (() => {
       'ob-login': login,
       'ob-name': () => textStep({
         screen: 'name', field: 'name', next: 'ob-desire', back: 'ob-login',
-        question: 'What should Wren call\nyou?',
-        note: 'Wren says it out loud before it goes.',
+        question: 'What should Evella call\nyou?',
+        note: 'Evella says it out loud before it goes.',
         placeholder: 'Maya'
       }),
       'ob-desire': () => voiceStep({
         screen: 'desire', field: 'desire', next: 'ob-mirror1', back: 'ob-name',
         question: '{name}, what are you\nhoping changes\nright now?',
-        note: 'Wren can hear and understand you',
+        note: 'Evella can hear and understand you',
         placeholder: 'Confidence, calm, a decision…'
       }),
       'ob-mirror1': () => mirror({

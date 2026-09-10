@@ -1,17 +1,17 @@
-# Wren · 核心链路
+# Evella · 核心链路
 
 > 你说出一件事 → 小鸟带上去 → 回来的是一段用你自己的话写的正念音频。
 
 这不是 demo。生成、合成、播放三段都是真的后端在做事，**除了 key 还没填**——
 key 一填，同一套代码就从「本地模板」切到「真为她写的」，前端一行不用改。
 
-对应 Figma `🐦 Wren` → 📱 Product：**Onboarding**（10 屏）+ **Home**（`4:8`）+ **主流程 · Home → Player**（9 屏），全部 1:1 还原。
+对应 Figma `🐦 Evella` → 📱 Product：**Onboarding**（10 屏）+ **Home**（`4:8`）+ **主流程 · Home → Player**（9 屏），全部 1:1 还原。
 
 ---
 
 ## 先看一眼
 
-**[belendali.github.io/wren/product/web/](https://belendali.github.io/wren/product/web/)**
+**[belendali.github.io/evella/product/web/](https://belendali.github.io/evella/product/web/)**
 
 这条链接是**静态预览**：九屏、交互、播放全是真的，但 GitHub Pages 上没有后端，
 所以稿子走本地模板、声音是浏览器合成的。**用 Chrome 或 Safari**，手机上效果最好。
@@ -24,7 +24,7 @@ key 一填，同一套代码就从「本地模板」切到「真为她写的」�
 ## 在本地跑真的
 
 ```bash
-python3 /Users/liyuanyuan/wren/product/serve.py
+python3 /Users/liyuanyuan/evella/product/serve.py
 ```
 
 打开 http://localhost:8471 。填了 key 之后，同样的操作走的就是 Claude 写稿 + 真人质感的声音。
@@ -32,7 +32,7 @@ python3 /Users/liyuanyuan/wren/product/serve.py
 启动时会打印当前用的是哪条路：
 
 ```
-  Wren  ·  http://localhost:8471
+  Evella  ·  http://localhost:8471
   稿子   template
   声音   browser
   ↳ 填 .env 里的 key 就换成真的，前端不用改
@@ -43,7 +43,7 @@ python3 /Users/liyuanyuan/wren/product/serve.py
 ## 填 key（交给同事的部分）
 
 ```bash
-cd /Users/liyuanyuan/wren/product
+cd /Users/liyuanyuan/evella/product
 python3 -m venv .venv && .venv/bin/pip install -r requirements.txt   # 只有一个依赖
 cp .env.example .env        # 已经有 .env 的话直接编辑
 ```
@@ -56,7 +56,7 @@ cp .env.example .env        # 已经有 .env 的话直接编辑
 | `ELEVENLABS_API_KEY` | 语音合成，质感最好 | ↓ |
 | `OPENAI_API_KEY` | 语音合成，便宜一档（`gpt-4o-mini-tts`） | 两个都不填 → 浏览器内置合成，能听，但像导航播报 |
 
-优先级：`WREN_TTS_PROVIDER` > ElevenLabs > OpenAI > 浏览器。改完 `.env` 重启服务即可。
+优先级：`EVELLA_TTS_PROVIDER` > ElevenLabs > OpenAI > 浏览器。改完 `.env` 重启服务即可。
 
 验证：`curl localhost:8471/api/config` 应该返回 `{"script":"claude", "tts":"elevenlabs", ...}`。
 
@@ -65,7 +65,7 @@ cp .env.example .env        # 已经有 .env 的话直接编辑
 | | 稿子 | 声音 | 怎么进这一档 |
 |---|---|---|---|
 | 静态预览 | 本地模板 `web/offline.js` | 浏览器合成 | 直接开网页，没有后端 |
-| 起了服务、没填 key | 本地模板 `wren/generate.py` | 浏览器合成 | `python3 serve.py` |
+| 起了服务、没填 key | 本地模板 `evella/generate.py` | 浏览器合成 | `python3 serve.py` |
 | 起了服务、填了 key | **Claude** | **ElevenLabs / OpenAI** | 填 `.env` 后重启 |
 
 三档返回的数据结构完全一致，所以升档不需要动前端。
@@ -83,7 +83,7 @@ Welcome 停三秒自己走，点哪儿都能提前走 —— 这一屏没有任�
 重进来时按状态接续：没登录 → 从头；登了没答完 → 接着答；答完 → Home。
 
 六步问题 + 一个梦想提问，进度条九格。顺序照搬 Stella 的弧线（最不费力的先问、
-回应屏卡在情绪成本最高那题之后当奖励），终点换成 Wren 自己的。
+回应屏卡在情绪成本最高那题之后当奖励），终点换成 Evella 自己的。
 依据写在 `../docs/05-ONBOARDING.md`。
 
 ### ⚠ 登录现在是假的
@@ -146,7 +146,7 @@ Home ──type─────────────────────�
 
 **二、「具体」不等于「近期」，而且绝不能要求日期。**
 「我想成为不会在开口前先道歉的人」没有时间没有地点，但它极其具体，必须放行。
-判定线在 `wren/prompts.py` 的 `CLARIFY_SYSTEM` 和 `wren/generate.py` 的 `clarify_locally()`，两条路都实现了同一条规则。
+判定线在 `evella/prompts.py` 的 `CLARIFY_SYSTEM` 和 `evella/generate.py` 的 `clarify_locally()`，两条路都实现了同一条规则。
 
 **三、转译层不否定、不代写、只提议。**
 出口「Take it as I said it →」永远在，选项是**加在她那句后面**而不是替换它。
@@ -159,7 +159,7 @@ Home ──type─────────────────────�
 
 ```
 serve.py            HTTP 服务：静态站 + 5 个接口
-wren/
+evella/
   config.py         .env、provider 探测
   prompts.py        ★ 给模型的那两段话。稿子好不好几乎全在这里
   generate.py       Claude 调用 + 本地模板兜底（两条路返回同构）

@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════
-   Wren —— 从「说出一件事」到「听完它」的完整链路。
+   Evella —— 从「说出一件事」到「听完它」的完整链路。
 
    屏的顺序和 Figma 主流程 section 一一对应：
      home → listening → heard / offer → generating → picker
@@ -33,7 +33,7 @@ const mmss = (s) => {
 };
 
 /* ── 状态 ───────────────────────────────────────── */
-const KEY = 'wren.product.v1';
+const KEY = 'evella.product.v1';
 const COVERS = [
   'assets/img/cover-podium.png',
   'assets/covers/cover-1.jpg', 'assets/covers/cover-2.jpg', 'assets/covers/cover-3.jpg',
@@ -64,7 +64,7 @@ function load() {
   return base;
 }
 function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (_) {} }
-window.wrenReset = () => { localStorage.removeItem(KEY); Auth.forget(); location.reload(); };
+window.evellaReset = () => { localStorage.removeItem(KEY); Auth.forget(); location.reload(); };
 
 // 一次会话内的临时状态
 let draft = { text: '', offered: false, refusals: 0 };
@@ -211,7 +211,7 @@ function homeScreen() {
   };
   paintChips(S.today && S.today.suggestions);
 
-  /* For you today —— 她还没开口，Wren 先带回来的三段 */
+  /* For you today —— 她还没开口，Evella 先带回来的三段 */
   const rail = el('div.session-rail', {});
   const paintRail = (sessions) => {
     rail.innerHTML = '';
@@ -249,7 +249,7 @@ function homeScreen() {
   return el('div.home', {},
     el('div.home-hero', {}, el('img', { src: 'assets/img/home-hero.png', alt: '' })),
     el('div.home-head', {},
-      el('p.wordmark', {}, 'Wren'),
+      el('p.wordmark', {}, 'Evella'),
       el('div.home-actions', {},
         iconBtn('frost-saved.svg', '', () => toast('Saved —— 这一期先不做')),
         iconBtn('frost-history.svg', '', () => showHistory()))),
@@ -280,7 +280,7 @@ function loadToday() {
       save();
       return S.today;
     })
-    .catch(err => { console.warn('[wren] 每日推荐拿不到：', err); return null; })
+    .catch(err => { console.warn('[evella] 每日推荐拿不到：', err); return null; })
     .finally(() => { todayPending = null; });
   return todayPending;
 }
@@ -339,20 +339,20 @@ function listeningScreen() {
   });
 
   return el('div.speak', {},
-    el('div.head', {}, el('p.wordmark', {}, 'Wren')),
+    el('div.head', {}, el('p.wordmark', {}, 'Evella')),
     el('div.speaking', {},
       el('p.q.dim', {}, `${S.profile.name}, what do you want to manifest today?`),
       live),
     el('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '24px' } },
       bars,
       timer,
-      el('p.label', { style: { color: 'var(--fg-muted)', textAlign: 'center', width: '390px' } }, "Wren's listening"),
+      el('p.label', { style: { color: 'var(--fg-muted)', textAlign: 'center', width: '390px' } }, "Evella's listening"),
       el('button.mic-big', { type: 'button', onclick: () => Speech.stopListening() }, el('div.square')),
       iconBtn('cancel-26.svg', 'cancel', () => { Speech.stopListening(); cleanup(); go('home'); })));
 }
 
 /* ══════════════════════════════════════════════════
-   03 · Speak clear —— Wren heard
+   03 · Speak clear —— Evella heard
    ══════════════════════════════════════════════════ */
 function heardScreen() {
   const field = el('textarea', { rows: 4, spellcheck: 'false' });
@@ -366,10 +366,10 @@ function heardScreen() {
   };
 
   return el('div.speak', {},
-    el('div.head', {}, el('p.wordmark', {}, 'Wren')),
+    el('div.head', {}, el('p.wordmark', {}, 'Evella')),
     el('div.heard', {},
       el('p.q', {}, `${S.profile.name}, what do you want to manifest today?`),
-      el('p.caption.cap', {}, 'Wren heard'),
+      el('p.caption.cap', {}, 'Evella heard'),
       el('div.heard-field', {}, field),
       el('p.heard-hint', {}, 'Tap to fix anything it misheard.'),
       el('button.chip.again', {
@@ -399,7 +399,7 @@ function offerScreen({ reflection, options }) {
   }, 'Take it as I said it  →'));
 
   return el('div.speak', {},
-    el('div.head', {}, el('p.wordmark', {}, 'Wren')),
+    el('div.head', {}, el('p.wordmark', {}, 'Evella')),
     el('div.transcript', {},
       el('p', {
         style: { margin: '0', font: '400 23px/33px var(--serif)', fontVariationSettings: 'var(--wonk)' }
@@ -422,14 +422,14 @@ function generatingScreen() {
     // 底下那层是被吹虚的 Home —— 她还没离开这个房间
     el('div.gen-blur', {},
       el('div.home-hero', {}, el('img', { src: 'assets/img/home-hero.png', alt: '' })),
-      el('div.home-head', {}, el('p.wordmark', {}, 'Wren')),
+      el('div.home-head', {}, el('p.wordmark', {}, 'Evella')),
       el('div.home-ask', {},
         el('h1', {}, `${S.profile.name}, what do you want to manifest today?`),
         el('div.pill', {}, el('div', { style: { flex: '1' } }), el('div.round')))),
     el('div.gen-scrim'),
     iconBtn('back-28.svg', 'abs back-28', () => { cancelGeneration(); go('home'); }),
-    el('img.gen-bird', { src: 'assets/img/wren-bird-flying-up-transparent.webp', alt: '' }),
-    el('p.display-lg.gen-title', {}, "Wren's gone with it."),
+    el('img.gen-bird', { src: 'assets/img/hero-rising.webp', alt: '' }),
+    el('p.display-lg.gen-title', {}, "Evella's gone with it."),
     el('p.body.gen-sub', {}, "Take three breaths. It won't be long."));
 }
 
@@ -507,7 +507,7 @@ function pickerScreen() {
   const node = el('div', {},
     iconBtn('vp-back.svg', 'abs back-28', () => go('home')),
     el('img.vp-bird', { src: 'assets/img/bird-perch.gif', alt: '' }),
-    el('h1.vp-title', { html: 'Wren came back<br><em>with three.</em>' }),
+    el('h1.vp-title', { html: 'Evella came back<br><em>with three.</em>' }),
     rail,
     dots,
     el('p.caption.vp-hint', {}, '‹  Swipe to the one you want  ›'));
@@ -609,7 +609,7 @@ function playerScreen({ prepared }) {
     scene(cover, true),
     el('button.icon-btn.abs.back-46', { type: 'button', onclick: () => { Player.stop(); go('picker'); } }, icon('p-back46.svg')),
     el('button.icon-btn.abs.close-46', { type: 'button', onclick: () => toast('播放设置 —— 这一期先不做') }, icon('p-settings.svg')),
-    el('p.player-brand.abs', {}, 'Wren'),
+    el('p.player-brand.abs', {}, 'Evella'),
     line,
     el('button.frost.abs.player-read', { type: 'button', onclick: openSheet }, icon('p-book.svg'), 'Read what came back'),
     marquee,
@@ -672,8 +672,8 @@ function playerScreen({ prepared }) {
 }
 
 function share(session) {
-  const text = `${session.title}\n\n— Wren`;
-  if (navigator.share) navigator.share({ title: 'Wren', text }).catch(() => {});
+  const text = `${session.title}\n\n— Evella`;
+  if (navigator.share) navigator.share({ title: 'Evella', text }).catch(() => {});
   else if (navigator.clipboard) navigator.clipboard.writeText(text).then(() => toast('复制好了'));
   else toast(session.title);
 }
@@ -710,13 +710,13 @@ function finishScreen() {
     scene(cover, false),
     el('div.finish-scrim'),
     el('button.icon-btn.abs.back-46', { type: 'button', onclick: () => { clearTimeout(timer); clearInterval(countdown); go('home'); } }, icon('exit-back-46.svg')),
-    el('p.player-brand.abs', {}, 'Wren'),
+    el('p.player-brand.abs', {}, 'Evella'),
     el('div.finish', {},
       dots,
       el('p.caption.kicker', {}, `${['ONE', 'TWO', 'THREE'][done - 1] || 'ONE'} OF THREE · COMPLETE`),
       el('h2.display-lg', {}, 'Let it feel real.'),
       el('p.body.sub', {}, next
-        ? `Feel it as if it were already here. Wren has ${3 - done === 1 ? 'one more' : 'two more'} for you.`
+        ? `Feel it as if it were already here. Evella has ${3 - done === 1 ? 'one more' : 'two more'} for you.`
         : 'Feel it as if it were already here. That was all three.'),
       upNext ? el('div', { style: { display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px', paddingTop: '30px' } },
         upNext,

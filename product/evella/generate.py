@@ -86,7 +86,7 @@ def _anthropic():
     try:
         import anthropic
     except ImportError:
-        print("[wren] ANTHROPIC_API_KEY 有了，但没装 SDK：pip install -r requirements.txt", file=sys.stderr)
+        print("[evella] ANTHROPIC_API_KEY 有了，但没装 SDK：pip install -r requirements.txt", file=sys.stderr)
         return None
     _client = anthropic.Anthropic(api_key=key)
     return _client
@@ -262,7 +262,7 @@ def script_locally(intent: str, profile: dict) -> list:
         s.append({"text": "%s." % you, "pause": 1.4, "bird": False})
         s.append({"text": "It's %s %s." % (day, part), "pause": 1.2, "bird": False})
         s.append({"text": "You said: %s." % phrase, "pause": 2.0, "bird": False})
-        s.append({"text": "Wren has that. It's already gone up with it.", "pause": 1.8, "bird": True})
+        s.append({"text": "Evella has that. It's already gone up with it.", "pause": 1.8, "bird": True})
         s.append({"text": "Let the next breath out slowly. All of it.", "pause": 3.4, "bird": False})
         return s
 
@@ -292,7 +292,7 @@ def script_locally(intent: str, profile: dict) -> list:
             {"text": "One line to take with you.", "pause": 2.0, "bird": False},
             {"text": line, "pause": 3.6, "bird": False},
             {"text": line, "pause": 4.0, "bird": False},
-            {"text": "That's it. Wren's already up there with the rest.", "pause": 1.6, "bird": True},
+            {"text": "That's it. Evella's already up there with the rest.", "pause": 1.6, "bird": True},
         ]
 
     cap = phrase[:1].upper() + phrase[1:] if phrase else phrase
@@ -355,7 +355,7 @@ def clarify(intent: str, profile: dict) -> dict:
             result["source"] = "claude"
             return result
         except Exception as exc:  # noqa: BLE001 — 任何失败都不该挡住她说话
-            print("[wren] clarify 回退到本地：%s" % exc, file=sys.stderr)
+            print("[evella] clarify 回退到本地：%s" % exc, file=sys.stderr)
     result = clarify_locally(intent, profile)
     result["source"] = "template"
     return result
@@ -366,12 +366,12 @@ def script(intent: str, profile: dict) -> dict:
         try:
             return {"sessions": script_with_claude(intent, profile), "source": "claude"}
         except Exception as exc:  # noqa: BLE001
-            print("[wren] 生成回退到本地模板：%s" % exc, file=sys.stderr)
+            print("[evella] 生成回退到本地模板：%s" % exc, file=sys.stderr)
     return {"sessions": script_locally(intent, profile), "source": "template"}
 
 
 # ══════════════════════════════════════════════════════
-#  每日推荐 —— 她还没开口之前，Wren 先带回来的三段
+#  每日推荐 —— 她还没开口之前，Evella 先带回来的三段
 # ══════════════════════════════════════════════════════
 
 
@@ -474,7 +474,7 @@ def daily(profile: dict) -> dict:
             result["source"] = "claude"
             return result
         except Exception as exc:  # noqa: BLE001
-            print("[wren] 每日推荐回退到本地模板：%s" % exc, file=sys.stderr)
+            print("[evella] 每日推荐回退到本地模板：%s" % exc, file=sys.stderr)
     result = daily_locally(profile)
     result["source"] = "template"
     return result
