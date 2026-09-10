@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=54">
+<link rel="stylesheet" href="style.css?v=55">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -685,21 +685,48 @@ const WAITLIST_ENDPOINT = '';
   const GAPS  = solo ? [1600] : [2000, 2600, 2200, 2900];
   const START = solo ? [600]  : [500, 2100, 3700, 5300];
 
-  window.Wishes = {
-    add: function (text) { LINES.splice(cursor % LINES.length, 0, text); }
-  };
+  // 每个位置的定时器单独存着，这样才能中途打断去插播她那一句
+  const timers = [], cycles = [];
 
   slots.forEach(function (el, i) {
     function cycle() {
+      el.classList.remove('mine');
       el.querySelector('b').textContent = next();
       el.classList.add('on');
-      setTimeout(function () {
+      timers[i] = setTimeout(function () {
         el.classList.remove('on');
-        setTimeout(cycle, GAPS[i]);
+        timers[i] = setTimeout(cycle, GAPS[i]);
       }, HOLD);
     }
-    setTimeout(cycle, START[i]);
+    cycles[i] = cycle;
+    timers[i] = setTimeout(cycle, START[i]);
   });
+
+  window.Wishes = {
+    // 加进队列，以后还会轮到
+    add: function (text) { LINES.splice(cursor % LINES.length, 0, text); },
+
+    // 落地之后立刻显示 —— 只塞进队列的话要等好几轮才轮到，等于看不见
+    showNow: function (text) {
+      let i = slots.findIndex(function (s) { return !s.classList.contains('on'); });
+      const wasOn = i < 0;
+      if (wasOn) i = 0;
+      const el = slots[i];
+
+      clearTimeout(timers[i]);
+      el.classList.remove('on');
+
+      // 占用中的位置要先淡出，否则是硬切
+      timers[i] = setTimeout(function () {
+        el.querySelector('b').textContent = '\u201c' + text + '\u201d';
+        el.classList.add('mine', 'on');
+        timers[i] = setTimeout(function () {
+          el.classList.remove('on');
+          timers[i] = setTimeout(cycles[i], GAPS[i]);
+        }, HOLD + 2600);          // 自己那句多留一会儿
+      }, wasOn ? 800 : 80);
+    }
+  };
 })();
 
 
@@ -887,7 +914,7 @@ const WAITLIST_ENDPOINT = '';
   const said = document.getElementById('wish-said');
 
   function land(text) {
-    if (window.Wishes) window.Wishes.add('“' + text + '”');
+    if (window.Wishes) { window.Wishes.add('“' + text + '”'); window.Wishes.showNow(text); }
     input.value = '';
     form.classList.remove('ready');
     charge(0);
