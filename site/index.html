@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=43">
+<link rel="stylesheet" href="style.css?v=44">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -525,6 +525,8 @@ const WAITLIST_ENDPOINT = '';
   let tx = 0, ty = 0, mx = 0, my = 0;
   let burst = 0;              // 点一下，粒子往外炸开再收回来
   let charge = 0;             // 打字时球会亮起来
+  let deep = 1;               // 0 浅 / 1 深，可调
+  let glow = 1;               // 整体亮度倍率，可调
   // 触屏不做点击形变 —— 手指点在球上只会挡住看不到效果，
   // 而且会跟页面滚动抢手势
   if (!AUTO) {
@@ -618,13 +620,14 @@ const WAITLIST_ENDPOINT = '';
 
       const depth = (z + 1) / 2;                       // 0 后 → 1 前
       const pulse = 0.72 + 0.28 * Math.sin(t * 1.5 + p.s * 9.4);
-      const a = (0.04 + Math.pow(depth, 1.9) * 0.78) * pulse * (1 + charge * 0.45);
+      const a = (0.04 + Math.pow(depth, 1.9) * 0.78) * pulse * (1 + charge * 0.45) * glow;
       const rad = (0.22 + Math.pow(depth, 2.2) * 0.92) * sc * (0.55 + p.s * 0.8);
 
       // 靠前偏白，靠后偏橙
-      const cr = Math.round(216 + depth * 36);
-      const cg = Math.round(86 + Math.pow(depth, 1.5) * 138);
-      const cb = Math.round(58 + Math.pow(depth, 1.8) * 150);
+      // 两组端点随 deep 插值，可调
+      const cr = Math.round((238 - deep * 40) + depth * (17 + deep * 34));
+      const cg = Math.round((116 - deep * 42) + Math.pow(depth, 1.5) * (130 + deep * 20));
+      const cb = Math.round((88 - deep * 42) + Math.pow(depth, 1.8) * (150 + deep * 8));
       // 越靠画布边越淡，到边之前就归零 —— 这样无论迸散多远都不会出现直边
       const lim = Math.min(W, H) * 0.5;
       const dist = Math.hypot(px - cx, py - cy);
@@ -642,6 +645,8 @@ const WAITLIST_ENDPOINT = '';
 
   window.Orb = {
     setCharge: function (v) { charge = Math.max(0, Math.min(1, v)); },
+    setDeep:  function (v) { deep = Math.max(0, Math.min(1, v)); },
+    setGlow:  function (v) { glow = Math.max(0.2, Math.min(2, v)); },
     burst: function () { burst = 1; rings.push({ t0: t, fast: true }); }
   };
 })();
@@ -1015,6 +1020,83 @@ const WAITLIST_ENDPOINT = '';
     }
   }
   requestAnimationFrame(frame);
+})();
+
+/* ══ 调参面板（仅 ?tune=1 时出现）═══════════════════
+   我看不到页面，所以把数值交给你拖。
+   面板整个由 JS 生成，普通访客的页面里连节点都不存在。
+   调好点 Copy，把那行贴给我，我写进源码。 */
+(function () {
+  if (!/[?&]tune=1/.test(location.search)) return;
+
+  const water = document.querySelector('.water');
+  const saved = (function () {
+    try { return JSON.parse(localStorage.getItem('evella_tune') || '{}'); } catch (e) { return {}; }
+  })();
+
+  const F = [
+    { k: 'water', label: 'Water opacity', min: 0,   max: 1,  step: 0.02, val: saved.water != null ? saved.water : 0.4 },
+    { k: 'deep',  label: 'Orb depth',     min: 0,   max: 1,  step: 0.02, val: saved.deep  != null ? saved.deep  : 1 },
+    { k: 'glow',  label: 'Orb brightness',min: 0.3, max: 1.8,step: 0.02, val: saved.glow  != null ? saved.glow  : 1 }
+  ];
+  const BLENDS = ['soft-light', 'overlay', 'normal', 'luminosity', 'multiply'];
+  let blend = saved.blend || 'soft-light';
+
+  const wrap = document.createElement('div');
+  wrap.className = 'tune';
+  wrap.innerHTML =
+    '<b>Tune</b>' +
+    F.map(function (f) {
+      return '<label>' + f.label + '<i data-out="' + f.k + '">' + f.val + '</i>' +
+             '<input type="range" data-k="' + f.k + '" min="' + f.min + '" max="' + f.max +
+             '" step="' + f.step + '" value="' + f.val + '"></label>';
+    }).join('') +
+    '<label>Water blend<select data-k="blend">' +
+      BLENDS.map(function (b) { return '<option' + (b === blend ? ' selected' : '') + '>' + b + '</option>'; }).join('') +
+    '</select></label>' +
+    '<div class="tune-row"><button type="button" data-act="copy">Copy</button>' +
+    '<button type="button" data-act="reset">Reset</button></div>' +
+    '<code data-out="code"></code>';
+  document.body.appendChild(wrap);
+
+  const state = {};
+  F.forEach(function (f) { state[f.k] = +f.val; });
+  state.blend = blend;
+
+  function apply() {
+    if (water) { water.style.opacity = state.water; water.style.mixBlendMode = state.blend; }
+    if (window.Orb) { window.Orb.setDeep(state.deep); window.Orb.setGlow(state.glow); }
+    F.forEach(function (f) {
+      wrap.querySelector('[data-out="' + f.k + '"]').textContent = (+state[f.k]).toFixed(2);
+    });
+    wrap.querySelector('[data-out="code"]').textContent =
+      'water ' + (+state.water).toFixed(2) + ' / ' + state.blend +
+      '  ·  deep ' + (+state.deep).toFixed(2) + '  ·  glow ' + (+state.glow).toFixed(2);
+    try { localStorage.setItem('evella_tune', JSON.stringify(state)); } catch (e) {}
+  }
+
+  wrap.addEventListener('input', function (e) {
+    const k = e.target.dataset.k;
+    if (!k) return;
+    state[k] = e.target.type === 'range' ? +e.target.value : e.target.value;
+    apply();
+  });
+  wrap.addEventListener('click', function (e) {
+    const act = e.target.dataset.act;
+    if (act === 'copy') {
+      const txt = wrap.querySelector('[data-out="code"]').textContent;
+      navigator.clipboard.writeText(txt).then(function () {
+        e.target.textContent = 'Copied';
+        setTimeout(function () { e.target.textContent = 'Copy'; }, 1400);
+      });
+    }
+    if (act === 'reset') {
+      try { localStorage.removeItem('evella_tune'); } catch (_) {}
+      location.reload();
+    }
+  });
+
+  apply();
 })();
 </script>
 </body>
