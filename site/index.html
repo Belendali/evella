@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=31">
+<link rel="stylesheet" href="style.css?v=33">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -61,6 +61,15 @@
         <h1>Manifest it.<br><em>Then live it.</em></h1>
 
         <p class="lede">Say what you want. Get a three-minute meditation made just for you.</p>
+
+        <form class="wish" id="wish" autocomplete="off">
+          <input id="wish-in" type="text" maxlength="80" enterkeyhint="send"
+                 placeholder="Say what you want…" aria-label="Say what you want">
+          <button class="wish-go" id="wish-go" type="submit" aria-label="Send it up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
+          </button>
+        </form>
 
         <div class="reveal" id="reveal">
           <div class="cta">
@@ -253,7 +262,7 @@
 
     <div id="wl-step1">
       <h3 id="wl-h">Join the waitlist</h3>
-      <p>We’ll email you the day Evella opens on iPhone. Nothing else.</p>
+      <p id="wl-sub">We’ll email you the day Evella opens on iPhone. Nothing else.</p>
       <form class="wl-form" id="wl-form" novalidate>
         <input type="email" id="wl-email" placeholder="you@email.com" autocomplete="email" required>
         <button class="btn primary" type="submit" id="wl-go">Join</button>
@@ -304,7 +313,17 @@ const WAITLIST_ENDPOINT = '';
     document.body.style.overflow = '';
     if (lastFocus) lastFocus.focus();
   }
-  document.querySelectorAll('[data-wl]').forEach(function (b) { b.addEventListener('click', open); });
+  const sub = document.getElementById('wl-sub');
+  const DEFAULT_SUB = sub.textContent;
+  window.openWaitlist = function (wish) {
+    sub.textContent = wish
+      ? 'We’ll email you the day Evella can say that back to you.'
+      : DEFAULT_SUB;
+    open();
+  };
+  document.querySelectorAll('[data-wl]').forEach(function (b) {
+    b.addEventListener('click', function () { window.openWaitlist(); });
+  });
   document.getElementById('wl-x').addEventListener('click', close);
   wl.addEventListener('click', function (e) { if (e.target === wl) close(); });
   document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !wl.hidden) close(); });
@@ -499,6 +518,7 @@ const WAITLIST_ENDPOINT = '';
   /* 指针位置相对球心，做平滑 —— 直接用原值会一顿一顿的 */
   let tx = 0, ty = 0, mx = 0, my = 0;
   let burst = 0;              // 点一下，粒子往外炸开再收回来
+  let charge = 0;             // 打字时球会亮起来
   // 触屏不做点击形变 —— 手指点在球上只会挡住看不到效果，
   // 而且会跟页面滚动抢手势
   if (!AUTO) {
@@ -518,15 +538,15 @@ const WAITLIST_ENDPOINT = '';
     t = now / 1000;
     ctx.clearRect(0, 0, W, H);
     const cx = W / 2, cy = H / 2;
-    const breathe = 0.5 + 0.5 * Math.sin(t * (Math.PI * 2 / 6.5));
+    const breathe = 0.5 + 0.5 * Math.sin(t * (Math.PI * 2 / (6.5 - charge * 3.4)));
 
     ctx.globalCompositeOperation = 'lighter';
 
     /* 核心光晕 */
     const coreR = R * (0.92 + breathe * 0.16);
     const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-    g.addColorStop(0,   'rgba(255,244,234,' + (0.30 + breathe * 0.16) + ')');
-    g.addColorStop(0.38,'rgba(242,138,102,' + (0.17 + breathe * 0.09) + ')');
+    g.addColorStop(0,   'rgba(255,244,234,' + (0.30 + breathe * 0.16 + charge * 0.30) + ')');
+    g.addColorStop(0.38,'rgba(242,138,102,' + (0.17 + breathe * 0.09 + charge * 0.16) + ')');
     g.addColorStop(1,   'rgba(233,111,81,0)');
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, 6.2832); ctx.fill();
@@ -592,7 +612,7 @@ const WAITLIST_ENDPOINT = '';
 
       const depth = (z + 1) / 2;                       // 0 后 → 1 前
       const pulse = 0.72 + 0.28 * Math.sin(t * 1.5 + p.s * 9.4);
-      const a = (0.04 + Math.pow(depth, 1.9) * 0.78) * pulse;
+      const a = (0.04 + Math.pow(depth, 1.9) * 0.78) * pulse * (1 + charge * 0.45);
       const rad = (0.22 + Math.pow(depth, 2.2) * 0.92) * sc * (0.55 + p.s * 0.8);
 
       // 靠前偏白，靠后偏橙
@@ -613,6 +633,11 @@ const WAITLIST_ENDPOINT = '';
     if (!reduce) requestAnimationFrame(frame);
   }
   requestAnimationFrame(frame);
+
+  window.Orb = {
+    setCharge: function (v) { charge = Math.max(0, Math.min(1, v)); },
+    burst: function () { burst = 1; rings.push({ t0: t, fast: true }); }
+  };
 })();
 
 /* ── 愿望句 ──────────────────────────────────
@@ -649,6 +674,10 @@ const WAITLIST_ENDPOINT = '';
   // 间隙各不相同，否则几轮之后会同步成一起明一起灭
   const GAPS  = solo ? [1400] : [1500, 2100, 1700, 2400];
   const START = solo ? [400]  : [300, 1200, 2100, 3000];
+
+  window.Wishes = {
+    add: function (text) { LINES.splice(cursor % LINES.length, 0, text); }
+  };
 
   slots.forEach(function (el, i) {
     function cycle() {
@@ -814,6 +843,75 @@ const WAITLIST_ENDPOINT = '';
     document.body.appendChild(s);
     s.addEventListener('animationend', function () { s.remove(); }, { once: true });
   }, { passive: true });
+})();
+
+/* ══ 许愿：说出来的那句话被送上去 ══════════════════
+   打字 -> 球蓄能变亮、飘着的愿望句让位；
+   提交 -> 那句话变成气泡飞进球里、球接住并炸开一圈、
+          它加入轮播队列，然后才请她留邮箱。 */
+(function () {
+  const form = document.getElementById('wish');
+  const input = document.getElementById('wish-in');
+  const canvas = document.getElementById('orb');
+  const layer = document.getElementById('quotes');
+  if (!form || !input || !canvas) return;
+
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const charge = function (v) { if (window.Orb) window.Orb.setCharge(v); };
+
+  input.addEventListener('input', function () {
+    const n = input.value.trim().length;
+    form.classList.toggle('ready', n > 0);
+    charge(Math.min(1, n / 34));          // 说得越多，球越亮
+  });
+  input.addEventListener('focus', function () {
+    if (layer) layer.classList.add('dim');
+  });
+  input.addEventListener('blur', function () {
+    if (layer && !input.value.trim()) layer.classList.remove('dim');
+  });
+
+  function land(text) {
+    if (window.Wishes) window.Wishes.add('“' + text + '”');
+    input.value = '';
+    form.classList.remove('ready');
+    charge(0);
+    if (layer) layer.classList.remove('dim');
+    setTimeout(function () { window.openWaitlist(text); }, 380);
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const text = input.value.trim();
+    if (!text) { input.focus(); return; }
+
+    if (reduce || typeof form.animate !== 'function') { land(text); return; }
+
+    const fr = form.getBoundingClientRect();
+    const ob = canvas.getBoundingClientRect();
+    const fly = document.createElement('div');
+    fly.className = 'wish-fly';
+    fly.textContent = '“' + text + '”';
+    fly.style.left = (fr.left + fr.width / 2) + 'px';
+    fly.style.top = (fr.top + fr.height / 2) + 'px';
+    document.body.appendChild(fly);
+
+    const dx = (ob.left + ob.width / 2) - (fr.left + fr.width / 2);
+    const dy = (ob.top + ob.height / 2) - (fr.top + fr.height / 2);
+    const base = 'translate(-50%,-50%) ';
+
+    const anim = fly.animate([
+      { transform: base + 'translate(0px,0px) scale(1)', opacity: 0 },
+      { transform: base + 'translate(0px,-6px) scale(1)', opacity: 1, offset: 0.12 },
+      { transform: base + 'translate(' + (dx * 0.55).toFixed(1) + 'px,' + (dy * 0.55).toFixed(1) + 'px) scale(.9)',
+        opacity: 1, offset: 0.6 },
+      { transform: base + 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) scale(.42)', opacity: 0 }
+    ], { duration: 1050, easing: 'cubic-bezier(.42,0,.28,1)', fill: 'forwards' });
+
+    // 球在气泡快到的时候接住
+    setTimeout(function () { if (window.Orb) window.Orb.burst(); }, 860);
+    anim.onfinish = function () { fly.remove(); land(text); };
+  });
 })();
 </script>
 </body>
