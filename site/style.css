@@ -466,9 +466,8 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
   .nav .btn { display: none; }          /* 会把 logo 挤掉 */
   .hero { text-align: left; }
   .hero .lede { margin-left: 0; }
-  .hero .cta { justify-content: flex-start; }
-  .btn { width: 100%; }
-  .hero .cta .btn, .final .cta .btn { flex: 1 1 100%; }
+  .hero .cta { justify-content: flex-start; flex-wrap: nowrap; }
+  .hero .cta .btn { flex: 0 1 auto; width: auto; padding: 0 22px; }
   .sec-head.center { text-align: left; }
 }
 
@@ -723,11 +722,12 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
      文字一长就被切进导航栏里。给 sticky 留出导航高度，球也收小一档。 */
   .hero-sticky { padding-top: 96px; --orb: clamp(190px, 27vh, 270px); }
 
-  /* 手机上不做"滚动才出现"，两个按钮直接在首屏 */
+  /* 手机上不做"滚动才出现"，两个按钮直接在首屏；
+     并且靠左，跟标题、描述在同一条左边线上 */
   .reveal {
-    opacity: 1;
-    transform: translate(-50%, -50%) translateY(34px);
-    pointer-events: auto;
+    opacity: 1; pointer-events: auto;
+    left: 0; width: 100%;
+    transform: translateY(calc(-50% + 34px));
   }
 }
 @media (prefers-reduced-motion: reduce) {
