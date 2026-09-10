@@ -108,7 +108,14 @@ h1 em, h2 em { font-style: italic; }
    任何祖先上的 overflow 都会让 position:sticky 失效。 */
 .hero {
   position: relative;
-  background: linear-gradient(178deg, #FFF8F1 0%, #F6D2BE 62%, #E7A47E 100%);
+  /* 单一暖色渐变会显得平 —— 四层叠出来：
+     球背后的光源、两角很淡的冷调（有冷才显得出暖）、四周压暗、底色本身加深 */
+  background:
+    radial-gradient(118% 74% at 50% 4%, rgba(255,253,250,.9) 0%, rgba(255,253,250,0) 48%),
+    radial-gradient(86% 58% at 8% 100%,  rgba(146,112,128,.17) 0%, rgba(146,112,128,0) 64%),
+    radial-gradient(86% 58% at 92% 94%,  rgba(146,112,128,.13) 0%, rgba(146,112,128,0) 62%),
+    radial-gradient(142% 104% at 50% 40%, rgba(53,37,31,0) 50%, rgba(53,37,31,.12) 100%),
+    linear-gradient(178deg, #FFF8F1 0%, #F9DAC6 38%, #EFAF89 72%, #DE9670 100%);
   text-align: center;
 }
 .hero-stage { height: 200vh; }
@@ -271,7 +278,12 @@ section { padding: clamp(64px, 9vw, 118px) 0; scroll-margin-top: 80px; }
 .sec-head .lede { margin-top: 16px; }
 
 /* ── features ───────────────────────────────────── */
-.features { background: var(--bone); }
+.features {
+  background:
+    radial-gradient(70% 46% at 50% 0%, rgba(255,248,241,.9) 0%, rgba(255,248,241,0) 70%),
+    radial-gradient(80% 60% at 100% 100%, rgba(233,111,81,.06) 0%, rgba(233,111,81,0) 66%),
+    var(--bone);
+}
 .grid {
   display: grid; gap: 16px; margin-top: clamp(36px, 5vw, 56px);
   grid-template-columns: repeat(auto-fit, minmax(min(272px, 100%), 1fr));
@@ -641,7 +653,8 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
 }
 .wish:focus-within {
   border-color: rgba(255,255,255,.95);
-  transform: translateY(-2px);
+  /* 必须带上 translateX(-50%)，否则会把居中冲掉、整个框往右跳 */
+  transform: translateX(-50%) translateY(-2px);
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,1),
     0 0 0 4px rgba(233,111,81,.13),
