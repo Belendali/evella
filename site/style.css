@@ -618,9 +618,11 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
 .wish {
   position: relative; z-index: 2;
   display: flex; align-items: center; gap: 8px;
-  width: min(430px, calc(100vw - 48px));
-  margin: 22px auto 0;
-  padding: 7px 7px 7px 22px;
+  width: min(368px, calc(100vw - 48px));
+  margin: 20px auto 0;
+  padding: 6px 6px 6px 20px;
+  /* 按钮那一组浮上来的同时它退场 —— 这只是首屏的小彩蛋，不参与转化 */
+  opacity: calc(1 - var(--r, 0) * 1.6);
   border-radius: var(--r-full);
   background:
     linear-gradient(158deg, rgba(255,255,255,.72) 0%, rgba(255,255,255,0) 46%),
@@ -643,14 +645,15 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
     0 0 0 4px rgba(233,111,81,.13),
     0 18px 38px -14px rgba(53,37,31,.28);
 }
+.wish.gone { pointer-events: none; }
 .wish input {
-  flex: 1; min-width: 0; height: 44px; border: 0; background: none; outline: none;
-  font: italic 400 17px/24px var(--serif); color: var(--ink);
+  flex: 1; min-width: 0; height: 40px; border: 0; background: none; outline: none;
+  font: italic 400 16px/22px var(--serif); color: var(--ink);
 }
 .wish input::placeholder { color: var(--ink-300); opacity: 1; }
 
 .wish-go {
-  width: 44px; height: 44px; flex: 0 0 auto; border: 0; border-radius: 50%;
+  width: 40px; height: 40px; flex: 0 0 auto; border: 0; border-radius: 50%;
   background: var(--grad-signal); color: var(--paper);
   display: grid; place-items: center; cursor: pointer;
   box-shadow: var(--lift-strong);
@@ -658,12 +661,23 @@ footer .links { display: flex; gap: 22px; font-size: 14px; color: var(--fg-2); }
   transition: opacity .4s var(--ease), transform .4s var(--ease);
 }
 .wish.ready .wish-go { opacity: 1; transform: none; }
-.wish-go svg { width: 19px; height: 19px; }
+.wish-go svg { width: 17px; height: 17px; }
 .wish-go:active { transform: scale(.93); }
 
 /* 打字的时候把飘着的愿望句压下去，注意力留给她自己那句 */
 .q-layer { transition: opacity .5s var(--ease); }
 .q-layer.dim { opacity: .22; }
+
+/* 落地之后那一行很轻的回应 —— 绝对定位，不挤动布局 */
+.wish-said {
+  position: absolute; left: 0; right: 0; top: calc(100% + 14px);
+  margin: 0; text-align: center;
+  font: italic 400 14px/20px var(--serif); color: var(--fg-3);
+  opacity: 0; transform: translateY(-4px);
+  transition: opacity .9s var(--ease), transform .9s var(--ease);
+  pointer-events: none;
+}
+.wish-said.on { opacity: 1; transform: none; }
 
 /* 送上去的那句话 —— 飞行途中的气泡 */
 .wish-fly {

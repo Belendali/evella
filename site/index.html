@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=33">
+<link rel="stylesheet" href="style.css?v=34">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -60,7 +60,7 @@
       <div class="hero-copy" id="hero-copy">
         <h1>Manifest it.<br><em>Then live it.</em></h1>
 
-        <p class="lede">Say what you want. Get a three-minute meditation made just for you.</p>
+        <p class="lede">Say what you want. Get a three-minute meditation made just for you in Evella.</p>
 
         <form class="wish" id="wish" autocomplete="off">
           <input id="wish-in" type="text" maxlength="80" enterkeyhint="send"
@@ -69,6 +69,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                  stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
           </button>
+          <p class="wish-said" id="wish-said" aria-live="polite"></p>
         </form>
 
         <div class="reveal" id="reveal">
@@ -701,6 +702,7 @@ const WAITLIST_ENDPOINT = '';
   const stage  = document.querySelector('.hero-stage');
   const reveal = document.getElementById('reveal');
   const cue    = document.getElementById('cue');
+  const wish   = document.getElementById('wish');
   if (!sticky || !stage) return;
 
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -718,6 +720,8 @@ const WAITLIST_ENDPOINT = '';
     sticky.style.setProperty('--p', p.toFixed(4));
     sticky.style.setProperty('--r', r.toFixed(4));
     reveal.classList.toggle('live', r > 0.55);
+    // 淡出之后要真的点不到，光靠 opacity 不够
+    if (wish) wish.classList.toggle('gone', r > 0.12);
     if (cue) cue.style.pointerEvents = p > 0.25 ? 'none' : 'auto';
   }
   function onScroll() {
@@ -871,13 +875,21 @@ const WAITLIST_ENDPOINT = '';
     if (layer && !input.value.trim()) layer.classList.remove('dim');
   });
 
+  const said = document.getElementById('wish-said');
+
   function land(text) {
     if (window.Wishes) window.Wishes.add('“' + text + '”');
     input.value = '';
     form.classList.remove('ready');
     charge(0);
     if (layer) layer.classList.remove('dim');
-    setTimeout(function () { window.openWaitlist(text); }, 380);
+    // 不弹等待名单 —— 这里只是一个安静的小彩蛋，说完就完了
+    if (said) {
+      said.textContent = 'It’s up there now.';
+      said.classList.add('on');
+      clearTimeout(said._t);
+      said._t = setTimeout(function () { said.classList.remove('on'); }, 3200);
+    }
   }
 
   form.addEventListener('submit', function (e) {
@@ -906,10 +918,10 @@ const WAITLIST_ENDPOINT = '';
       { transform: base + 'translate(' + (dx * 0.55).toFixed(1) + 'px,' + (dy * 0.55).toFixed(1) + 'px) scale(.9)',
         opacity: 1, offset: 0.6 },
       { transform: base + 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) scale(.42)', opacity: 0 }
-    ], { duration: 1050, easing: 'cubic-bezier(.42,0,.28,1)', fill: 'forwards' });
+    ], { duration: 1850, easing: 'cubic-bezier(.34,0,.2,1)', fill: 'forwards' });
 
     // 球在气泡快到的时候接住
-    setTimeout(function () { if (window.Orb) window.Orb.burst(); }, 860);
+    setTimeout(function () { if (window.Orb) window.Orb.burst(); }, 1540);
     anim.onfinish = function () { fly.remove(); land(text); };
   });
 })();
