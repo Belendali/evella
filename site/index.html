@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=39">
+<link rel="stylesheet" href="style.css?v=41">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -43,6 +43,8 @@
 <header class="hero" id="top">
   <div class="hero-stage">
     <div class="hero-sticky" id="hero-sticky">
+
+      <canvas class="ripple" id="ripple" aria-hidden="true"></canvas>
 
       <div class="orb-stage">
         <div class="orb-wrap" id="orb-wrap">
@@ -935,6 +937,83 @@ const WAITLIST_ENDPOINT = '';
     }, 1540);
     anim.onfinish = function () { fly.remove(); land(text); };
   });
+})();
+
+/* ══ hero 水波纹 ═════════════════════════════════
+   球那儿每隔几秒落下一滴，点击任意处也会荡开一圈。
+   每圈画一亮一暗两道 —— 真实的水波有波峰也有波谷，
+   只画一道白圈看着像光环不像水。 */
+(function () {
+  const cv = document.getElementById('ripple');
+  const sticky = document.getElementById('hero-sticky');
+  const orb = document.getElementById('orb');
+  if (!cv || !sticky || !orb) return;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const ctx = cv.getContext('2d');
+  let W = 0, H = 0, dpr = 1;
+  function size() {
+    dpr = Math.min(devicePixelRatio || 1, 2);
+    const b = sticky.getBoundingClientRect();
+    W = Math.max(1, Math.round(b.width));
+    H = Math.max(1, Math.round(b.height));
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+  size();
+  addEventListener('resize', size);
+
+  const drops = [];
+  const MAXR = function () { return Math.hypot(W, H) * 0.62; };
+
+  function drop(x, y, strength) {
+    if (drops.length > 9) return;
+    drops.push({ x: x, y: y, t0: performance.now(), s: strength || 1 });
+  }
+
+  sticky.addEventListener('pointerdown', function (e) {
+    const b = sticky.getBoundingClientRect();
+    drop(e.clientX - b.left, e.clientY - b.top, 1.25);
+  });
+
+  let nextAmbient = 0;
+  function frame(now) {
+    requestAnimationFrame(frame);   // 先排下一帧：绘制出错也不会把循环掐死
+    ctx.clearRect(0, 0, W, H);
+
+    if (now > nextAmbient) {
+      const ob = orb.getBoundingClientRect(), sb = sticky.getBoundingClientRect();
+      drop(ob.left - sb.left + ob.width / 2, ob.top - sb.top + ob.height / 2, 0.8);
+      nextAmbient = now + 2600 + Math.random() * 2200;
+    }
+
+    for (let i = drops.length - 1; i >= 0; i--) {
+      const d = drops[i];
+      const age = (now - d.t0) / 6400;
+      if (age >= 1) { drops.splice(i, 1); continue; }
+
+      const r = MAXR() * (age * (2 - age));            // 先快后慢，像水面扩散
+      const fade = (1 - age) * (1 - age) * d.s;
+      if (r < 2 || fade < 0.004) continue;
+
+      ctx.save();
+      ctx.translate(d.x, d.y);
+      ctx.scale(1, 0.88);                              // 略压扁，像贴着水面看
+
+      ctx.lineWidth = 1.6;
+      ctx.strokeStyle = 'rgba(255,252,247,' + (0.30 * fade).toFixed(4) + ')';
+      ctx.beginPath(); ctx.arc(0, 0, r, 0, 6.2832); ctx.stroke();
+
+      if (r > 9) {                                     // 波谷：紧跟在波峰内侧
+        ctx.lineWidth = 2.4;                           // r 太小时 r-5 会是负数，arc() 直接抛错
+        ctx.strokeStyle = 'rgba(150,96,74,' + (0.10 * fade).toFixed(4) + ')';
+        ctx.beginPath(); ctx.arc(0, 0, r - 5, 0, 6.2832); ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+  }
+  requestAnimationFrame(frame);
 })();
 </script>
 </body>
