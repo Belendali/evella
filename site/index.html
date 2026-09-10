@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=42">
+<link rel="stylesheet" href="style.css?v=43">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -551,9 +551,9 @@ const WAITLIST_ENDPOINT = '';
     /* 核心光晕 */
     const coreR = R * (0.92 + breathe * 0.16);
     const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, coreR);
-    g.addColorStop(0,   'rgba(255,244,234,' + (0.30 + breathe * 0.16 + charge * 0.30) + ')');
-    g.addColorStop(0.38,'rgba(242,138,102,' + (0.17 + breathe * 0.09 + charge * 0.16) + ')');
-    g.addColorStop(1,   'rgba(233,111,81,0)');
+    g.addColorStop(0,   'rgba(252,230,214,' + (0.30 + breathe * 0.16 + charge * 0.30) + ')');
+    g.addColorStop(0.38,'rgba(226,112,80,' + (0.19 + breathe * 0.09 + charge * 0.16) + ')');
+    g.addColorStop(1,   'rgba(214,92,64,0)');
     ctx.fillStyle = g;
     ctx.beginPath(); ctx.arc(cx, cy, coreR, 0, 6.2832); ctx.fill();
 
@@ -622,9 +622,9 @@ const WAITLIST_ENDPOINT = '';
       const rad = (0.22 + Math.pow(depth, 2.2) * 0.92) * sc * (0.55 + p.s * 0.8);
 
       // 靠前偏白，靠后偏橙
-      const cr = Math.round(233 + depth * 22);
-      const cg = Math.round(105 + Math.pow(depth, 1.5) * 139);
-      const cb = Math.round(72 + Math.pow(depth, 1.8) * 162);
+      const cr = Math.round(216 + depth * 36);
+      const cg = Math.round(86 + Math.pow(depth, 1.5) * 138);
+      const cb = Math.round(58 + Math.pow(depth, 1.8) * 150);
       // 越靠画布边越淡，到边之前就归零 —— 这样无论迸散多远都不会出现直边
       const lim = Math.min(W, H) * 0.5;
       const dist = Math.hypot(px - cx, py - cy);
