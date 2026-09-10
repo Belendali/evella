@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=38">
+<link rel="stylesheet" href="style.css?v=39">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -922,8 +922,17 @@ const WAITLIST_ENDPOINT = '';
       { transform: base + 'translate(' + dx.toFixed(1) + 'px,' + dy.toFixed(1) + 'px) scale(.42)', opacity: 0 }
     ], { duration: 1850, easing: 'cubic-bezier(.34,0,.2,1)', fill: 'forwards' });
 
-    // 球在气泡快到的时候接住
-    setTimeout(function () { if (window.Orb) window.Orb.burst(); }, 1540);
+    // 球在气泡快到的时候接住。不用炸开那一下 —— 太像特效了；
+    // 改成短暂亮起再落回去，是"吸收"不是"爆开"
+    setTimeout(function () {
+      if (!window.Orb) return;
+      const t0 = performance.now();
+      (function glow(now) {
+        const k = Math.min(1, ((now || t0) - t0) / 1200);
+        window.Orb.setCharge(0.5 * (1 - k) * (1 - k));
+        if (k < 1) requestAnimationFrame(glow); else window.Orb.setCharge(0);
+      })(t0);
+    }, 1540);
     anim.onfinish = function () { fly.remove(); land(text); };
   });
 })();
