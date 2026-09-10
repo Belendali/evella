@@ -15,7 +15,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..700;1,9..144,300..700&family=Inclusive+Sans:ital,wght@0,300..700;1,300..700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css?v=44">
+<link rel="stylesheet" href="style.css?v=45">
 <link rel="icon" href="img/logo-mark.png">
 </head>
 <body>
@@ -526,7 +526,7 @@ const WAITLIST_ENDPOINT = '';
   let burst = 0;              // 点一下，粒子往外炸开再收回来
   let charge = 0;             // 打字时球会亮起来
   let deep = 1;               // 0 浅 / 1 深，可调
-  let glow = 1;               // 整体亮度倍率，可调
+  let glow = 0.82;            // 整体亮度倍率，可调
   // 触屏不做点击形变 —— 手指点在球上只会挡住看不到效果，
   // 而且会跟页面滚动抢手势
   if (!AUTO) {
